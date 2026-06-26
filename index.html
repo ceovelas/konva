@@ -38,6 +38,13 @@
   .today-chip{display:flex;align-items:center;gap:7px;background:var(--accent-dim);border:1px solid rgba(54,224,160,.28);padding:7px 13px;border-radius:999px}
   .today-chip .num{font-weight:800;font-size:15px;color:var(--accent)}
   .today-chip .lbl{font-size:11px;font-weight:600;color:var(--accent);opacity:.85}
+  .head-right{display:flex;align-items:center;gap:10px}
+  .sync-dot{width:9px;height:9px;border-radius:50%;background:var(--muted2);flex-shrink:0;transition:var(--tap);cursor:pointer}
+  .sync-dot.syncing{background:var(--warn);animation:pulse 1s infinite}
+  .sync-dot.ok{background:var(--accent)}
+  .sync-dot.err{background:var(--bad)}
+  .sync-dot.off{background:var(--muted2)}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
   nav{display:flex;gap:2px;padding:6px 10px 12px;position:sticky;top:0;background:linear-gradient(var(--bg),var(--bg) 70%,transparent);z-index:8}
   nav button{flex:1;background:transparent;border:none;color:var(--muted2);font-size:10px;font-weight:600;padding:8px 1px;border-radius:13px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;transition:var(--tap);position:relative}
   nav button .ic{font-size:18px;line-height:1;transition:var(--tap)}
@@ -203,7 +210,7 @@
 <div id="app">
   <header>
     <div class="logo">Kon<span>va</span></div>
-    <div class="today-chip"><span class="num" id="today-num">0</span><span class="lbl">сегодня</span></div>
+    <div class="head-right"><span class="sync-dot off" id="sync-dot" title="локально"></span><div class="today-chip"><span class="num" id="today-num">0</span><span class="lbl">сегодня</span></div></div>
   </header>
   <nav>
     <button data-tab="work" class="active"><span class="ic">⚡️</span>Отписка</button>
@@ -247,6 +254,46 @@
 <div id="onb-root"></div>
 <script>
 const DAY_MS=864e5,KEY="konva_v3";
+/* ===== SUPABASE CLOUD ===== */
+const SB_URL="https://iipdtyxjlovgcnhzungf.supabase.co";
+const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGR0eXhqbG92Z2NuaHp1bmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0OTg4MjcsImV4cCI6MjA5ODA3NDgyN30.4A2HcoPyofz9ydb0p3gorPvZzRjQxE8W6tJ2iam292g";
+let TG_ID=null, CLOUD_READY=false, cloudPushT=null;
+function getTgId(){try{const tg=window.Telegram&&window.Telegram.WebApp;const u=tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user;if(u&&u.id)return"tg_"+u.id}catch(e){}
+  let d=localStorage.getItem("konva_device_id");if(!d){d="dev_"+Math.random().toString(36).slice(2,12);localStorage.setItem("konva_device_id",d)}return d}
+function sbHeaders(){return {"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Content-Type":"application/json"}}
+async function sbGet(path){const r=await fetch(SB_URL+"/rest/v1/"+path,{headers:sbHeaders()});if(!r.ok)throw new Error("GET "+r.status);return r.json()}
+async function sbUpsert(table,rows,onConflict){const r=await fetch(SB_URL+"/rest/v1/"+table+"?on_conflict="+onConflict,{method:"POST",headers:Object.assign({"Prefer":"resolution=merge-duplicates,return=minimal"},sbHeaders()),body:JSON.stringify(rows)});if(!r.ok){const t=await r.text();throw new Error("UPSERT "+r.status+" "+t)}}
+async function sbDelete(table,query){const r=await fetch(SB_URL+"/rest/v1/"+table+"?"+query,{method:"DELETE",headers:sbHeaders()});if(!r.ok)throw new Error("DEL "+r.status)}
+function leadToRow(l){return {id:l.id,tg_id:TG_ID,handle:l.handle,status:l.status||"queue",answered:l.answered||null,call:l.call||null,deal:l.deal||null,amount:(l.amount!=null?l.amount:null),note:l.note||null,added_at:l.addedAt||null,wrote_at:l.wroteAt||null,bad_at:l.badAt||null,nostory_at:l.nostoryAt||null,updated_at:Date.now()}}
+function rowToLead(r){return {id:r.id,handle:r.handle,status:r.status,answered:r.answered,call:r.call,deal:r.deal,amount:(r.amount!=null?+r.amount:null),note:r.note,addedAt:r.added_at?+r.added_at:Date.now(),wroteAt:r.wrote_at?+r.wrote_at:null,badAt:r.bad_at?+r.bad_at:null,nostoryAt:r.nostory_at?+r.nostory_at:null}}
+async function cloudPull(){
+  const leadsRows=await sbGet("konva_leads?tg_id=eq."+encodeURIComponent(TG_ID)+"&select=*");
+  const setRows=await sbGet("konva_settings?tg_id=eq."+encodeURIComponent(TG_ID)+"&select=*");
+  return {leads:leadsRows.map(rowToLead),settings:setRows[0]?setRows[0].data:null};
+}
+async function cloudPushAll(){
+  if(!TG_ID)return;
+  if(state.leads.length)await sbUpsert("konva_leads",state.leads.map(leadToRow),"id");
+  await sbUpsert("konva_settings",[{tg_id:TG_ID,data:{templates:state.templates,settings:state.settings,onboarded:state.onboarded},updated_at:Date.now()}],"tg_id");
+}
+function cloudPushDebounced(){
+  if(!CLOUD_READY)return;
+  setSyncDot("syncing");
+  clearTimeout(cloudPushT);
+  cloudPushT=setTimeout(()=>{cloudPushAll().then(()=>setSyncDot("ok")).catch(e=>{console.warn("cloud push",e);setSyncDot("err")})},700);
+}
+function setSyncDot(st){const el=document.getElementById("sync-dot");if(!el)return;
+  el.className="sync-dot "+st;el.title={syncing:"синхронизация…",ok:"всё в облаке",err:"нет связи — сохранено локально",off:"локально"}[st]||"";}
+function mergeStates(localLeads,cloudLeads){
+  const map={};
+  cloudLeads.forEach(l=>map[l.id]=l);
+  localLeads.forEach(l=>{const c=map[l.id];if(!c){map[l.id]=l}else{
+    const lt=Math.max(l.wroteAt||0,l.badAt||0,l.nostoryAt||0,l.addedAt||0);
+    const ct=Math.max(c.wroteAt||0,c.badAt||0,c.nostoryAt||0,c.addedAt||0);
+    if(lt>=ct)map[l.id]=l;
+  }});
+  return Object.values(map);
+}
 const DEFAULTS={leads:[],templates:["Привет! Увидел твой профиль 🙌","Здравствуйте! Хочу предложить сотрудничество"],settings:{theme:"dark",haptics:true,stageAnswered:true,stageCall:true,currency:"₽"},onboarded:false};
 let state=loadState();
 function loadState(){let s=null;
@@ -255,7 +302,7 @@ function loadState(){let s=null;
   if(!s){try{const o=JSON.parse(localStorage.getItem("leadflow_v1"));if(o&&o.leads)s={leads:o.leads}}catch(e){}}
   s=s||{};
   return {leads:s.leads||[],templates:s.templates||DEFAULTS.templates.slice(),settings:Object.assign({},DEFAULTS.settings,s.settings||{}),onboarded:!!s.onboarded}}
-function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function save(){localStorage.setItem(KEY,JSON.stringify(state));cloudPushDebounced()}
 function buzz(type){if(!state.settings.haptics)return;try{const tg=window.Telegram&&window.Telegram.WebApp;if(tg&&tg.HapticFeedback){tg.HapticFeedback.impactOccurred(type||"medium");return}}catch(e){}if(navigator.vibrate)navigator.vibrate(18)}
 function parseLeads(text){const found=new Set(),out=[];
   text.split(/[\s,;]+/).forEach(tok=>{tok=tok.trim();if(!tok)return;let h=null;
@@ -504,14 +551,53 @@ const li=document.getElementById("load-input");
 li.addEventListener("input",()=>{const p=parseLeads(li.value);document.getElementById("load-preview").innerHTML=p.length?`Распознано <b>${p.length}</b>: ${p.slice(0,6).map(h=>"@"+h).join(", ")}${p.length>6?" …":""}`:`Вставь ссылки или @юзернеймы.`});
 document.getElementById("load-btn").onclick=()=>{const p=parseLeads(li.value);if(!p.length){toast("Не нашёл ссылок");return}const n=addLeads(p);li.value="";document.getElementById("load-preview").innerHTML="";toast(n?`Добавлено ${n}`+(p.length-n?` · дублей ${p.length-n}`:""):"Все уже в базе");show("work")};
 document.getElementById("batch-btn").onclick=startBatch;
-document.getElementById("wipe-btn").onclick=()=>{if(confirm("Удалить ВСЮ базу безвозвратно?")){state.leads=[];save();toast("База очищена");show("work")}};
+document.getElementById("wipe-btn").onclick=()=>{if(confirm("Удалить ВСЮ базу безвозвратно?")){state.leads=[];save();if(CLOUD_READY&&TG_ID){sbDelete("konva_leads","tg_id=eq."+encodeURIComponent(TG_ID)).catch(e=>console.warn("cloud wipe",e))}toast("База очищена");show("work")}};
 document.querySelectorAll("#funnel-seg button").forEach(b=>b.onclick=()=>{funnelFilter=b.dataset.f;document.querySelectorAll("#funnel-seg button").forEach(x=>x.classList.toggle("active",x===b));renderFunnel()});
 document.querySelectorAll("#dash-seg button").forEach(b=>b.onclick=()=>{dashPeriod=b.dataset.p;document.querySelectorAll("#dash-seg button").forEach(x=>x.classList.toggle("active",x===b));renderDash()});
 try{const tg=window.Telegram&&window.Telegram.WebApp;if(tg){tg.ready();tg.expand()}}catch(e){}
 applyTheme();
-if(state.leads.length===0)addLeads(["demo_anna_smm","fit_club_batumi","cold_lead_pro"]);
+
+/* ===== BOOT: local first, then cloud sync ===== */
+TG_ID=getTgId();
+// manual re-pull on tapping the sync dot
+(function(){const d=document.getElementById("sync-dot");if(d)d.onclick=async()=>{if(!TG_ID)return;setSyncDot("syncing");try{const cloud=await cloudPull();state.leads=mergeStates(state.leads,cloud.leads);if(cloud.settings){if(cloud.settings.templates)state.templates=cloud.settings.templates;if(cloud.settings.settings)state.settings=Object.assign({},DEFAULTS.settings,cloud.settings.settings)}localStorage.setItem(KEY,JSON.stringify(state));setSyncDot("ok");applyTheme();const a=document.querySelector(".screen.active"),tab=a?a.id.replace("screen-",""):"work";show(tab);refresh();toast("Обновлено из облака")}catch(e){setSyncDot("err");toast("Нет связи с облаком")}}})();
+// 1. paint local immediately so app feels instant
 refresh();renderWork();
-if(!state.onboarded)startOnboarding();
+if(!state.onboarded&&state.leads.length===0)startOnboarding();
+// 2. then reconcile with cloud
+(async function cloudBoot(){
+  setSyncDot("syncing");
+  try{
+    const cloud=await cloudPull();
+    // merge leads (local + cloud, newest wins)
+    const merged=mergeStates(state.leads,cloud.leads);
+    state.leads=merged;
+    // settings: cloud wins if present (so theme/templates follow you across devices)
+    if(cloud.settings){
+      if(cloud.settings.templates)state.templates=cloud.settings.templates;
+      if(cloud.settings.settings)state.settings=Object.assign({},DEFAULTS.settings,cloud.settings.settings);
+      if(typeof cloud.settings.onboarded==="boolean")state.onboarded=cloud.settings.onboarded;
+    }
+    localStorage.setItem(KEY,JSON.stringify(state));
+    CLOUD_READY=true;
+    // push merged result back up so cloud has the union
+    await cloudPushAll();
+    setSyncDot("ok");
+    applyTheme();
+    // repaint whatever screen is active
+    const active=document.querySelector(".screen.active");
+    const tab=active?active.id.replace("screen-",""):"work";
+    if(tab==="work")renderWork();else if(tab==="funnel")renderFunnel();else if(tab==="later")renderLater();else if(tab==="dash")renderDash();else if(tab==="settings")renderSettings();
+    refresh();
+  }catch(e){
+    console.warn("cloud boot failed, staying local:",e);
+    CLOUD_READY=true; // still allow future pushes to retry
+    setSyncDot("err");
+  }
+  // only seed demo if truly empty everywhere and never onboarded
+  if(state.leads.length===0){addLeads(["demo_anna_smm","fit_club_batumi","cold_lead_pro"]);renderWork();if(!state.onboarded)startOnboarding()}
+})();
+
 </script>
 </body>
 </html>
