@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Konva</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root{
+    --bg:#0e1116;
+    --surface:#171c24;
+    --surface2:#1f2630;
+    --line:#2a3340;
+    --txt:#e8edf4;
+    --muted:#8a97a8;
+    --accent:#3ecf8e;       /* написал / деньги */
+    --accent-dim:#1c6b4a;
+    --warn:#f5a623;         /* нет сторис */
+    --warn-dim:#6b4d18;
+    --bad:#ec5f67;          /* не подходит */
+    --bad-dim:#6b2b2f;
+    --skip:#6c7a8c;
+    --blue:#4a9bf5;
+    --radius:16px;
+    --tap:0.12s cubic-bezier(.2,.8,.3,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    background:var(--bg);color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,system-ui,sans-serif;
+    overscroll-behavior:none;
+  }
+  #app{max-width:480px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;position:relative}
+
+  /* header */
+  header{padding:18px 20px 10px;display:flex;align-items:center;justify-content:space-between}
+  .logo{font-weight:800;font-size:20px;letter-spacing:-.5px}
+  .logo span{color:var(--accent)}
+  .daytag{font-size:12px;color:var(--muted);background:var(--surface);padding:6px 10px;border-radius:999px;border:1px solid var(--line)}
+
+  /* tabs */
+  nav{display:flex;gap:6px;padding:4px 14px 12px;position:sticky;top:0;background:var(--bg);z-index:5}
+  nav button{
+    flex:1;background:transparent;border:none;color:var(--muted);
+    font-size:13px;font-weight:600;padding:10px 4px;border-radius:10px;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:3px;transition:var(--tap);
+  }
+  nav button .ic{font-size:18px;line-height:1}
+  nav button.active{color:var(--txt);background:var(--surface)}
+  nav button .badge{position:absolute;font-size:10px}
+
+  main{flex:1;padding:0 16px 120px}
+  .screen{display:none;animation:fade .25s ease}
+  .screen.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  h2{font-size:15px;font-weight:700;margin:18px 2px 10px;color:var(--txt)}
+  .sub{font-size:12px;color:var(--muted);margin:2px 2px 14px;line-height:1.5}
+
+  /* load box */
+  textarea{
+    width:100%;min-height:140px;background:var(--surface);border:1px solid var(--line);
+    border-radius:var(--radius);color:var(--txt);padding:14px;font-size:14px;resize:vertical;
+    font-family:inherit;line-height:1.5;
+  }
+  textarea:focus{outline:none;border-color:var(--accent)}
+  .btn{
+    width:100%;border:none;border-radius:14px;padding:15px;font-size:15px;font-weight:700;
+    cursor:pointer;transition:var(--tap);color:#0e1116;
+  }
+  .btn:active{transform:scale(.97)}
+  .btn-primary{background:var(--accent);margin-top:12px}
+  .btn-ghost{background:var(--surface2);color:var(--txt);border:1px solid var(--line)}
+  .preview{margin-top:14px;font-size:12px;color:var(--muted)}
+  .preview b{color:var(--accent)}
+
+  /* WORK card */
+  .stack{position:relative;min-height:300px;margin-top:10px}
+  .card{
+    background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:26px 22px;
+    text-align:center;
+  }
+  .queuecount{font-size:12px;color:var(--muted);margin-bottom:18px;letter-spacing:.3px}
+  .queuecount b{color:var(--txt)}
+  .avatar{
+    width:84px;height:84px;border-radius:50%;margin:0 auto 16px;
+    background:linear-gradient(135deg,var(--surface2),var(--line));
+    display:flex;align-items:center;justify-content:center;font-size:34px;font-weight:800;color:var(--muted);
+    border:2px solid var(--line);
+  }
+  .handle{font-size:22px;font-weight:800;letter-spacing:-.3px;word-break:break-all}
+  .openlink{
+    display:inline-flex;align-items:center;gap:7px;margin-top:14px;
+    background:var(--surface2);border:1px solid var(--line);color:var(--blue);
+    padding:11px 18px;border-radius:12px;font-size:14px;font-weight:700;text-decoration:none;
+    transition:var(--tap);
+  }
+  .openlink:active{transform:scale(.96)}
+  .actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:22px}
+  .act{
+    border:none;border-radius:14px;padding:16px 8px;font-size:14px;font-weight:700;cursor:pointer;
+    color:#0e1116;transition:var(--tap);display:flex;flex-direction:column;align-items:center;gap:4px;
+  }
+  .act:active{transform:scale(.95)}
+  .act .ic{font-size:20px}
+  .act-wrote{background:var(--accent);grid-column:1 / -1}
+  .act-nostory{background:var(--warn)}
+  .act-bad{background:var(--bad)}
+  .act-skip{background:var(--surface2);color:var(--muted);border:1px solid var(--line);grid-column:1 / -1;padding:11px}
+
+  .empty{text-align:center;padding:60px 20px;color:var(--muted)}
+  .empty .big{font-size:40px;margin-bottom:12px}
+  .empty p{font-size:14px;line-height:1.6}
+
+  /* list rows */
+  .row{
+    background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:13px 14px;
+    margin-bottom:9px;display:flex;align-items:center;gap:12px;
+  }
+  .row .h{font-weight:700;font-size:14px;flex:1;word-break:break-all}
+  .row a.ig{color:var(--blue);text-decoration:none;font-size:18px}
+  .pill{font-size:11px;font-weight:700;padding:4px 9px;border-radius:999px;white-space:nowrap}
+  .pill.call{background:var(--warn-dim);color:var(--warn)}
+  .pill.nocall{background:var(--surface2);color:var(--muted)}
+  .pill.won{background:var(--accent-dim);color:var(--accent)}
+  .pill.lost{background:var(--bad-dim);color:var(--bad)}
+
+  .funnel-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+  .mini{
+    border:1px solid var(--line);background:var(--surface2);color:var(--txt);
+    font-size:12px;font-weight:600;padding:8px 12px;border-radius:10px;cursor:pointer;transition:var(--tap);
+  }
+  .mini:active{transform:scale(.94)}
+  .mini.on-call{background:var(--warn);color:#0e1116;border-color:var(--warn)}
+  .mini.on-won{background:var(--accent);color:#0e1116;border-color:var(--accent)}
+  .mini.on-lost{background:var(--bad);color:#0e1116;border-color:var(--bad)}
+  .fcard{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:11px}
+  .fcard .top{display:flex;align-items:center;gap:10px}
+  .stage-label{font-size:11px;color:var(--muted);margin:12px 0 5px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+
+  .timer{font-size:11px;color:var(--warn);font-weight:600}
+  .timer.ready{color:var(--accent)}
+
+  /* report */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  .stat{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 14px}
+  .stat .n{font-size:30px;font-weight:800;letter-spacing:-1px}
+  .stat .l{font-size:12px;color:var(--muted);margin-top:3px}
+  .stat.green .n{color:var(--accent)}
+  .stat.warn .n{color:var(--warn)}
+  .stat.bad .n{color:var(--bad)}
+  .convbar{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:11px}
+  .convrow{display:flex;justify-content:space-between;font-size:13px;margin-bottom:10px;color:var(--muted)}
+  .convrow b{color:var(--txt);font-size:14px}
+  .track{height:8px;background:var(--surface2);border-radius:99px;overflow:hidden;margin-top:4px}
+  .track i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .5s}
+
+  .danger{color:var(--bad);font-size:12px;text-align:center;width:100%;background:transparent;border:none;margin-top:20px;cursor:pointer;text-decoration:underline}
+
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+    background:var(--surface2);border:1px solid var(--line);color:var(--txt);
+    padding:12px 20px;border-radius:14px;font-size:14px;font-weight:600;z-index:50;
+    transition:transform .3s cubic-bezier(.2,.9,.3,1);max-width:90%;box-shadow:0 8px 30px rgba(0,0,0,.4)
+  }
+  .toast.show{transform:translateX(-50%) translateY(0)}
+  .seg{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:12px}
+  .seg button{flex:1;background:transparent;border:none;color:var(--muted);font-size:13px;font-weight:600;padding:9px;border-radius:9px;cursor:pointer;transition:var(--tap)}
+  .seg button.active{background:var(--surface2);color:var(--txt)}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="logo">Kon<span>va</span></div>
+    <div class="daytag" id="daytag">сегодня</div>
+  </header>
+
+  <nav>
+    <button data-tab="work" class="active"><span class="ic">⚡</span>Отписка</button>
+    <button data-tab="funnel"><span class="ic">📞</span>Воронка</button>
+    <button data-tab="later"><span class="ic">🕓</span>Сторис</button>
+    <button data-tab="report"><span class="ic">📊</span>Отчёт</button>
+    <button data-tab="load"><span class="ic">＋</span>База</button>
+  </nav>
+
+  <main>
+    <!-- WORK -->
+    <section class="screen active" id="screen-work">
+      <div id="work-body"></div>
+    </section>
+
+    <!-- FUNNEL -->
+    <section class="screen" id="screen-funnel">
+      <h2>Воронка</h2>
+      <p class="sub">Те, кому написал. Жми статусы по мере продвижения сделки.</p>
+      <div class="seg" id="funnel-seg">
+        <button data-f="all" class="active">Все</button>
+        <button data-f="call">Созвон</button>
+        <button data-f="won">Закрыл</button>
+      </div>
+      <div id="funnel-body"></div>
+    </section>
+
+    <!-- LATER (no stories) -->
+    <section class="screen" id="screen-later">
+      <h2>Нет сторис</h2>
+      <p class="sub">Кому не писал — ждём активную сторис. Через 24ч карточка «созреет», вернёшь в отписку одной кнопкой.</p>
+      <div id="later-body"></div>
+    </section>
+
+    <!-- REPORT -->
+    <section class="screen" id="screen-report">
+      <h2>Отчёт</h2>
+      <p class="sub">Считается сам по всей базе.</p>
+      <div id="report-body"></div>
+    </section>
+
+    <!-- LOAD -->
+    <section class="screen" id="screen-load">
+      <h2>Загрузить лидов</h2>
+      <p class="sub">Вставь хоть как — ссылки, @юзернеймы, вперемешку с текстом. Выдерну сам, дубли отброшу.</p>
+      <textarea id="load-input" placeholder="https://instagram.com/leadone&#10;@lead_two&#10;instagram.com/lead_three ..."></textarea>
+      <div class="preview" id="load-preview"></div>
+      <button class="btn btn-primary" id="load-btn">Добавить в базу</button>
+      <button class="danger" id="wipe-btn">Очистить всю базу</button>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const DAY_MS = 24*60*60*1000;
+const KEY = "leadflow_v1";
+let state = load();
+
+function load(){
+  try{ return JSON.parse(localStorage.getItem(KEY)) || {leads:[]}; }
+  catch(e){ return {leads:[]}; }
+}
+function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+
+/* ---------- lead parsing ---------- */
+function parseLeads(text){
+  const found = new Set();
+  const out = [];
+  // match instagram urls or @handles or bare handles on their own
+  const re = /(?:https?:\/\/)?(?:www\.)?instagram\.com\/([A-Za-z0-9_.]+)|@([A-Za-z0-9_.]{2,})|(?:^|\s)([A-Za-z0-9_.]{3,})(?=\s|$)/g;
+  let m;
+  text.split(/[\s,;]+/).forEach(tok=>{
+    tok = tok.trim();
+    if(!tok) return;
+    let handle = null;
+    const urlM = tok.match(/instagram\.com\/([A-Za-z0-9_.]+)/i);
+    if(urlM){ handle = urlM[1]; }
+    else if(tok.startsWith("@")){ handle = tok.slice(1); }
+    else if(/^[A-Za-z0-9_.]{2,}$/.test(tok) && !tok.includes(".com") && !/^https?$/i.test(tok)){ handle = tok; }
+    if(handle){
+      handle = handle.replace(/\/+$/,"").toLowerCase();
+      if(handle && !["p","reel","stories","www","http","https"].includes(handle) && !found.has(handle)){
+        found.add(handle);
+        out.push(handle);
+      }
+    }
+  });
+  return out;
+}
+
+function addLeads(handles){
+  const existing = new Set(state.leads.map(l=>l.handle));
+  let n=0;
+  handles.forEach(h=>{
+    if(!existing.has(h)){
+      state.leads.push({id:Date.now()+"_"+Math.random().toString(36).slice(2,7), handle:h, status:"queue", addedAt:Date.now()});
+      existing.add(h); n++;
+    }
+  });
+  save(); return n;
+}
+
+/* ---------- helpers ---------- */
+function igUrl(h){ return "https://instagram.com/"+h; }
+function queue(){ return state.leads.filter(l=>l.status==="queue"); }
+function fmtLeft(ms){
+  if(ms<=0) return "готов";
+  const h=Math.floor(ms/3600000), m=Math.floor((ms%3600000)/60000);
+  return h>0 ? `${h}ч ${m}м` : `${m}м`;
+}
+
+/* ---------- toast ---------- */
+let toastT;
+function toast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg; t.classList.add("show");
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),1600);
+}
+
+/* ---------- WORK screen ---------- */
+function renderWork(){
+  const body=document.getElementById("work-body");
+  const q=queue();
+  if(q.length===0){
+    body.innerHTML=`<div class="empty"><div class="big">🎉</div><p>Очередь пуста.<br>Загрузи лидов во вкладке «База» или проверь «Сторис» — там те, кто ждёт сторис.</p></div>`;
+    return;
+  }
+  const l=q[0];
+  body.innerHTML=`
+    <div class="stack"><div class="card">
+      <div class="queuecount">в очереди <b>${q.length}</b></div>
+      <div class="avatar">${l.handle.charAt(0).toUpperCase()}</div>
+      <div class="handle">@${l.handle}</div>
+      <a class="openlink" href="${igUrl(l.handle)}" target="_blank" rel="noopener">↗ Открыть в Instagram</a>
+      <div class="actions">
+        <button class="act act-wrote" data-act="wrote"><span class="ic">✅</span>Написал</button>
+        <button class="act act-nostory" data-act="nostory"><span class="ic">🕓</span>Нет сторис</button>
+        <button class="act act-bad" data-act="bad"><span class="ic">🚫</span>Не подходит</button>
+        <button class="act act-skip" data-act="skip">↓ Скип (в конец очереди)</button>
+      </div>
+    </div></div>`;
+  body.querySelectorAll("[data-act]").forEach(b=>{
+    b.onclick=()=>handleAct(l.id, b.dataset.act);
+  });
+}
+
+function handleAct(id, act){
+  const l=state.leads.find(x=>x.id===id);
+  if(!l) return;
+  if(act==="wrote"){ l.status="wrote"; l.wroteAt=Date.now(); l.call=null; l.deal=null; toast("В воронку →"); }
+  else if(act==="bad"){ l.status="bad"; l.badAt=Date.now(); toast("Отмечен «не подходит»"); }
+  else if(act==="nostory"){ l.status="nostory"; l.nostoryAt=Date.now(); toast("Вернётся через 24ч"); }
+  else if(act==="skip"){ l.addedAt=Date.now()+1; toast("В конец очереди"); } // push to end
+  save(); renderWork(); refreshBadges();
+}
+
+/* ---------- FUNNEL ---------- */
+let funnelFilter="all";
+function renderFunnel(){
+  const body=document.getElementById("funnel-body");
+  let arr=state.leads.filter(l=>l.status==="wrote");
+  if(funnelFilter==="call") arr=arr.filter(l=>l.call==="yes");
+  if(funnelFilter==="won") arr=arr.filter(l=>l.deal==="won");
+  arr.sort((a,b)=>(b.wroteAt||0)-(a.wroteAt||0));
+  if(arr.length===0){ body.innerHTML=`<div class="empty"><div class="big">📭</div><p>Пока пусто. Кому напишешь — появятся здесь.</p></div>`; return; }
+  body.innerHTML=arr.map(l=>{
+    const callYes=l.call==="yes", callNo=l.call==="no";
+    const won=l.deal==="won", lost=l.deal==="lost";
+    let pills="";
+    if(callYes) pills+=`<span class="pill call">созвон</span>`;
+    if(won) pills+=`<span class="pill won">оплата</span>`;
+    if(lost) pills+=`<span class="pill lost">не закрыл</span>`;
+    return `<div class="fcard">
+      <div class="top">
+        <div class="h">@${l.handle}</div>
+        ${pills}
+        <a class="ig" href="${igUrl(l.handle)}" target="_blank" rel="noopener">↗</a>
+      </div>
+      <div class="stage-label">Созвон</div>
+      <div class="funnel-actions">
+        <button class="mini ${callYes?'on-call':''}" data-id="${l.id}" data-set="call:yes">Состоялся</button>
+        <button class="mini ${callNo?'on-lost':''}" data-id="${l.id}" data-set="call:no">Не состоялся</button>
+      </div>
+      ${callYes?`
+      <div class="stage-label">Сделка</div>
+      <div class="funnel-actions">
+        <button class="mini ${won?'on-won':''}" data-id="${l.id}" data-set="deal:won">Закрыл (оплата)</button>
+        <button class="mini ${lost?'on-lost':''}" data-id="${l.id}" data-set="deal:lost">Не закрыл</button>
+      </div>`:''}
+    </div>`;
+  }).join("");
+  body.querySelectorAll("[data-set]").forEach(b=>{
+    b.onclick=()=>{
+      const l=state.leads.find(x=>x.id===b.dataset.id);
+      const [field,val]=b.dataset.set.split(":");
+      if(l[field]===val){ l[field]=null; if(field==="call") l.deal=null; }
+      else { l[field]=val; if(field==="call"&&val==="no") l.deal=null; }
+      save(); renderFunnel(); refreshBadges();
+    };
+  });
+}
+
+/* ---------- LATER (no stories) ---------- */
+function renderLater(){
+  const body=document.getElementById("later-body");
+  const arr=state.leads.filter(l=>l.status==="nostory").sort((a,b)=>(a.nostoryAt||0)-(b.nostoryAt||0));
+  if(arr.length===0){ body.innerHTML=`<div class="empty"><div class="big">🕓</div><p>Никто не ждёт сторис. Те, у кого их не было, будут копиться тут.</p></div>`; return; }
+  const now=Date.now();
+  body.innerHTML=arr.map(l=>{
+    const left=(l.nostoryAt+DAY_MS)-now;
+    const ready=left<=0;
+    return `<div class="row">
+      <a class="ig" href="${igUrl(l.handle)}" target="_blank" rel="noopener">↗</a>
+      <div class="h">@${l.handle}<br><span class="timer ${ready?'ready':''}">${ready?'✓ можно проверять':'через '+fmtLeft(left)}</span></div>
+      <button class="mini ${ready?'on-won':''}" data-back="${l.id}">${ready?'В отписку':'Вернуть'}</button>
+    </div>`;
+  }).join("");
+  body.querySelectorAll("[data-back]").forEach(b=>{
+    b.onclick=()=>{
+      const l=state.leads.find(x=>x.id===b.dataset.back);
+      l.status="queue"; l.addedAt=Date.now(); save();
+      toast("Вернул в очередь отписки"); renderLater(); refreshBadges();
+    };
+  });
+}
+
+/* ---------- REPORT ---------- */
+function renderReport(){
+  const L=state.leads;
+  const total=L.length;
+  const wrote=L.filter(l=>l.status==="wrote").length;
+  const bad=L.filter(l=>l.status==="bad").length;
+  const nostory=L.filter(l=>l.status==="nostory").length;
+  const inqueue=L.filter(l=>l.status==="queue").length;
+  const calls=L.filter(l=>l.call==="yes").length;
+  const won=L.filter(l=>l.deal==="won").length;
+  const callConv= wrote? Math.round(calls/wrote*100):0;
+  const wonConv= calls? Math.round(won/calls*100):0;
+  document.getElementById("report-body").innerHTML=`
+    <div class="grid2">
+      <div class="stat"><div class="n">${total}</div><div class="l">всего в базе</div></div>
+      <div class="stat green"><div class="n">${wrote}</div><div class="l">написал</div></div>
+      <div class="stat bad"><div class="n">${bad}</div><div class="l">не подошло</div></div>
+      <div class="stat warn"><div class="n">${nostory}</div><div class="l">ждут сторис</div></div>
+    </div>
+    <div class="convbar">
+      <div class="convrow"><span>Написал → Созвон</span><b>${calls} / ${wrote} · ${callConv}%</b></div>
+      <div class="track"><i style="width:${callConv}%"></i></div>
+    </div>
+    <div class="convbar">
+      <div class="convrow"><span>Созвон → Оплата</span><b>${won} / ${calls} · ${wonConv}%</b></div>
+      <div class="track"><i style="width:${wonConv}%"></i></div>
+    </div>
+    <div class="grid2" style="margin-top:11px">
+      <div class="stat"><div class="n">${inqueue}</div><div class="l">в очереди</div></div>
+      <div class="stat green"><div class="n">${won}</div><div class="l">оплат получено</div></div>
+    </div>`;
+}
+
+/* ---------- badges on nav ---------- */
+function refreshBadges(){
+  const map={work:queue().length, funnel:state.leads.filter(l=>l.status==="wrote").length, later:state.leads.filter(l=>l.status==="nostory").length};
+  document.querySelectorAll("nav button").forEach(b=>{
+    const t=b.dataset.tab, c=map[t];
+    let span=b.querySelector(".navcount");
+    if(c>0){
+      const txt=` (${c})`;
+      if(!span){ span=document.createElement("span"); span.className="navcount"; b.appendChild(span); }
+      // keep label, append count subtly
+    }
+  });
+}
+
+/* ---------- tabs ---------- */
+function show(tab){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById("screen-"+tab).classList.add("active");
+  document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));
+  if(tab==="work") renderWork();
+  if(tab==="funnel") renderFunnel();
+  if(tab==="later") renderLater();
+  if(tab==="report") renderReport();
+}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>show(b.dataset.tab));
+
+/* ---------- load screen ---------- */
+const loadInput=document.getElementById("load-input");
+loadInput.addEventListener("input",()=>{
+  const parsed=parseLeads(loadInput.value);
+  document.getElementById("load-preview").innerHTML = parsed.length?
+    `Распознано <b>${parsed.length}</b>: ${parsed.slice(0,6).map(h=>"@"+h).join(", ")}${parsed.length>6?" …":""}`:
+    `Вставь ссылки или @юзернеймы.`;
+});
+document.getElementById("load-btn").onclick=()=>{
+  const parsed=parseLeads(loadInput.value);
+  if(!parsed.length){ toast("Не нашёл ни одной ссылки"); return; }
+  const n=addLeads(parsed);
+  loadInput.value=""; document.getElementById("load-preview").innerHTML="";
+  toast(n?`Добавлено ${n} (дублей: ${parsed.length-n})`:"Все уже в базе");
+  show("work");
+};
+document.getElementById("wipe-btn").onclick=()=>{
+  if(confirm("Удалить ВСЮ базу безвозвратно?")){ state={leads:[]}; save(); toast("База очищена"); show("work"); }
+};
+
+/* funnel filter seg */
+document.querySelectorAll("#funnel-seg button").forEach(b=>{
+  b.onclick=()=>{
+    funnelFilter=b.dataset.f;
+    document.querySelectorAll("#funnel-seg button").forEach(x=>x.classList.toggle("active",x===b));
+    renderFunnel();
+  };
+});
+
+/* ---------- telegram init ---------- */
+try{
+  const tg=window.Telegram&&window.Telegram.WebApp;
+  if(tg){
+    tg.ready(); tg.expand();
+    if(tg.setHeaderColor) tg.setHeaderColor("#0e1116");
+    if(tg.setBackgroundColor) tg.setBackgroundColor("#0e1116");
+    document.body.style.paddingTop="calc(env(safe-area-inset-top) + 0px)";
+  }
+}catch(e){}
+
+/* day tag */
+document.getElementById("daytag").textContent=new Date().toLocaleDateString("ru-RU",{day:"numeric",month:"short"});
+
+/* seed demo if empty */
+if(state.leads.length===0){
+  addLeads(["demo_lead_anna","fit_marketing_pro","batumi_cafe_official"]);
+}
+refreshBadges();
+renderWork();
+</script>
+</body>
+</html>
