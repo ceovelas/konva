@@ -250,6 +250,15 @@
   .onb .skip{background:transparent;color:var(--muted2);flex:0 0 auto !important;padding:16px 20px !important}
   .onb .next{background:var(--hi);color:var(--bg)}
 
+  .code-box{display:flex;align-items:center;gap:10px;background:var(--bg2);border:1.5px dashed var(--line2);border-radius:16px;padding:14px 16px}
+  .code-val{flex:1;font-size:19px;font-weight:900;letter-spacing:1px;color:var(--txt);font-family:'Montserrat',monospace}
+  .code-copy{background:var(--hi);color:var(--bg);border:none;font-weight:800;font-size:12px;padding:10px 16px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:var(--tap)}
+  .code-copy:active{transform:scale(.93)}
+  .team-divider{display:flex;align-items:center;gap:12px;margin:18px 0 14px;color:var(--muted2);font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:1px}
+  .team-divider::before,.team-divider::after{content:"";flex:1;height:1px;background:var(--line)}
+  .code-input{width:100%;background:var(--bg2);border:1px solid var(--line2);border-radius:14px;color:var(--txt);padding:13px 15px;font-size:15px;font-weight:800;letter-spacing:1px;font-family:inherit;text-transform:uppercase}
+  .code-input:focus{outline:none;border-color:var(--hi)}
+
   .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(90px);background:var(--card3);border:1px solid var(--line2);color:var(--txt);padding:14px 20px;border-radius:999px;font-size:13.5px;font-weight:700;z-index:60;transition:transform .32s cubic-bezier(.2,.9,.3,1);max-width:92%;box-shadow:var(--shadow);display:flex;align-items:center;gap:14px;backdrop-filter:blur(12px)}
   .toast.show{transform:translateX(-50%) translateY(0)}
   .toast .undo{background:var(--hi);color:var(--bg);border:none;font-weight:900;padding:9px 16px;border-radius:999px;font-size:13px;cursor:pointer;white-space:nowrap}
@@ -308,8 +317,41 @@ const DAY_MS=864e5,KEY="konva_v3";
 const SB_URL="https://iipdtyxjlovgcnhzungf.supabase.co";
 const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGR0eXhqbG92Z2NuaHp1bmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0OTg4MjcsImV4cCI6MjA5ODA3NDgyN30.4A2HcoPyofz9ydb0p3gorPvZzRjQxE8W6tJ2iam292g";
 let TG_ID=null, CLOUD_READY=false, cloudPushT=null;
-function getTgId(){try{const tg=window.Telegram&&window.Telegram.WebApp;const u=tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user;if(u&&u.id)return"tg_"+u.id}catch(e){}
+/* ===== TEAM MODE =====
+   MY_CODE is this app-owner's permanent base code. Everything Артём's app
+   reads/writes lives under this code. Дима uses it to push leads into Артём's base. */
+const MY_CODE="KONVA-7X9F2A";
+function normCode(c){return (c||"").trim().toUpperCase().replace(/\s+/g,"")}
+function rawTgId(){try{const tg=window.Telegram&&window.Telegram.WebApp;const u=tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user;if(u&&u.id)return"tg_"+u.id}catch(e){}
   let d=localStorage.getItem("konva_device_id");if(!d){d="dev_"+Math.random().toString(36).slice(2,12);localStorage.setItem("konva_device_id",d)}return d}
+function getTgId(){return MY_CODE} // owner's app always operates under the base code
+/* Дима's push: write leads into a partner's base by code, without touching local state */
+async function partnerPush(code,handles){
+  const tgt=normCode(code);
+  if(!/^KONVA-[A-Z0-9]{4,}$/.test(tgt))throw new Error("bad_code");
+  const rows=handles.map(h=>({id:Date.now()+"_"+Math.random().toString(36).slice(2,7),tg_id:tgt,handle:h,status:"queue",added_at:Date.now(),updated_at:Date.now()}));
+  // de-dupe against what's already in that base
+  const existing=await sbGet("konva_leads?tg_id=eq."+encodeURIComponent(tgt)+"&select=handle");
+  const have=new Set(existing.map(r=>r.handle));
+  const fresh=rows.filter(r=>!have.has(r.handle));
+  if(fresh.length)await sbUpsert("konva_leads",fresh,"id");
+  return {added:fresh.length,dupes:rows.length-fresh.length};
+}
+/* one-time migration: move legacy tg_/dev_ rows onto MY_CODE so nothing is lost */
+async function migrateLegacyToCode(){
+  if(localStorage.getItem("konva_migrated_"+MY_CODE))return;
+  try{
+    const legacy=rawTgId();
+    if(legacy&&legacy!==MY_CODE){
+      const old=await sbGet("konva_leads?tg_id=eq."+encodeURIComponent(legacy)+"&select=*");
+      if(old.length){
+        const moved=old.map(r=>Object.assign({},r,{tg_id:MY_CODE,updated_at:Date.now()}));
+        await sbUpsert("konva_leads",moved,"id");
+      }
+    }
+  }catch(e){console.warn("migrate",e)}
+  localStorage.setItem("konva_migrated_"+MY_CODE,"1");
+}
 function sbHeaders(){return {"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Content-Type":"application/json"}}
 async function sbGet(path){const r=await fetch(SB_URL+"/rest/v1/"+path,{headers:sbHeaders()});if(!r.ok)throw new Error("GET "+r.status);return r.json()}
 async function sbUpsert(table,rows,onConflict){const r=await fetch(SB_URL+"/rest/v1/"+table+"?on_conflict="+onConflict,{method:"POST",headers:Object.assign({"Prefer":"resolution=merge-duplicates,return=minimal"},sbHeaders()),body:JSON.stringify(rows)});if(!r.ok){const t=await r.text();throw new Error("UPSERT "+r.status+" "+t)}}
@@ -467,7 +509,7 @@ function renderFunnel(){const body=document.getElementById("funnel-body"),S=stat
   body.querySelectorAll("[data-note]").forEach(t=>{let dt;t.oninput=()=>{clearTimeout(dt);dt=setTimeout(()=>{const l=state.leads.find(x=>x.id===t.dataset.note);l.note=t.value;save()},500)}})}
 function renderLater(){const body=document.getElementById("later-body");
   const arr=state.leads.filter(l=>l.status==="nostory").sort((a,b)=>(a.nostoryAt||0)-(b.nostoryAt||0));
-  if(!arr.length){body.innerHTML=`<div class="empty"><div class="big">🕓</div><p>Никто не ждёт сторис.</p></div>`;return}
+  if(!arr.length){body.innerHTML=`<div class="empty"><div class="big">🕓</div><p>Никто не ждет сторис.</p></div>`;return}
   const now=Date.now();
   body.innerHTML=arr.map(l=>{const left=(l.nostoryAt+DAY_MS)-now,r=left<=0;
     return `<div class="row"><a class="ig" href="${igUrl(l.handle)}" target="_blank" rel="noopener">↗</a><div class="h">@${l.handle}<br><span class="timer ${r?'ready':''}">${r?'✓ можно проверять':'через '+fmtLeft(left)}</span></div><button class="mini ${r?'on-won':''}" data-back="${l.id}">${r?'В отписку':'Вернуть'}</button></div>`}).join("");
@@ -482,7 +524,7 @@ function renderDash(){const body=document.getElementById("dash-body"),p=dashPeri
   const wonArr=L.filter(l=>l.deal==="won"&&inPeriod(l.wroteAt,p));
   const wonN=wonArr.length,money=wonArr.reduce((s,l)=>s+(+l.amount||0),0);
   const nostory=L.filter(l=>l.status==="nostory").length,inq=L.filter(l=>l.status==="queue").length;
-  const periodName={day:"сегодня",week:"за 7 дней",month:"за 30 дней",all:"за всё время"}[p];
+  const periodName={day:"сегодня",week:"за 7 дней",month:"за 30 дней",all:"за все время"}[p];
   let html=`<div class="kpi-grid">
     <div class="kpi hero"><div class="n">${money.toLocaleString("ru-RU")}${cur()}</div><div class="l">заработано ${periodName}</div></div>
     <div class="kpi"><div class="n">${wrote}</div><div class="l">написал</div></div>
@@ -558,12 +600,20 @@ function doActSilent(id,act){const l=state.leads.find(x=>x.id===id);if(!l)return
 function escapeHtml(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 function renderSettings(){const S=state.settings,body=document.getElementById("settings-body");
   body.innerHTML=`
+    <div class="set-block"><h3>Командный режим</h3><div class="d">Твой код базы, можешь передать его своей команде. Все, что они загрузят - попадет в твою очередь отписки</div>
+      <div class="code-box"><div class="code-val" id="my-code">${MY_CODE}</div><button class="code-copy" id="copy-code">Копировать</button></div>
+      <div class="team-divider"><span>или загрузи партнеру</span></div>
+      <div class="d" style="margin:0 0 10px">Если ты грузишь лиды другому человеку — вставь ЕГО код и список. Лиды уйдут в его базу, у тебя ничего не изменится.</div>
+      <input class="code-input" id="partner-code" placeholder="KONVA-XXXXXX" autocapitalize="characters">
+      <textarea class="note-input" id="partner-leads" style="min-height:90px;margin-top:9px" placeholder="Ссылки или @юзернеймы — как обычно"></textarea>
+      <button class="btn btn-sec" id="partner-send" style="margin-top:11px">Отправить лиды партнёру</button>
+    </div>
     <div class="set-block"><h3>Тема</h3><div class="d">Тёмная или светлая. Применяется сразу.</div>
       <div class="seg" style="margin:0"><button data-theme-set="dark" class="${S.theme==='dark'?'active':''}">🌙 Тёмная</button><button data-theme-set="light" class="${S.theme==='light'?'active':''}">☀️ Светлая</button></div></div>
-    <div class="set-block"><h3>Шаблоны заходов</h3><div class="d">Заготовки первого сообщения. На карточке лида — кнопка копирования. Добавляй свои.</div>
+    <div class="set-block"><h3>Шаблоны заходов</h3><div class="d">Заготовки первого сообщения. На карточке лида — кнопка копирования.</div>
       <div id="tmpl-list">${(state.templates||[]).map((t,i)=>`<div class="tmpl-item"><div class="txt">${escapeHtml(t)}</div><button class="del" data-deltmpl="${i}">×</button></div>`).join("")||'<div class="d">Пока нет шаблонов.</div>'}</div>
       <div class="tmpl-add"><textarea id="tmpl-new" placeholder="Новый заход — текст сообщения"></textarea><button id="tmpl-save">＋</button></div></div>
-    <div class="set-block"><h3>Этапы воронки</h3><div class="d">Включи только нужные этапы. Продаёшь без созвонов — выключи «Созвон».</div>
+    <div class="set-block"><h3>Этапы воронки</h3><div class="d">Включи только нужные этапы. Продаешь без созвонов — выключи «Созвон».</div>
       <div class="toggle-row"><span>Этап «Ответил / Не ответил»</span><div class="sw ${S.stageAnswered?'on':''}" data-toggle="stageAnswered"><i></i></div></div>
       <div class="toggle-row"><span>Этап «Созвон»</span><div class="sw ${S.stageCall?'on':''}" data-toggle="stageCall"><i></i></div></div></div>
     <div class="set-block"><h3>Вибро-отклик</h3><div class="d">Лёгкая вибрация при свайпе и действиях.</div>
@@ -572,6 +622,20 @@ function renderSettings(){const S=state.settings,body=document.getElementById("s
       <div class="seg" style="margin:0">${["₽","$","€","₾","₸"].map(c=>`<button data-cur="${c}" class="${S.currency===c?'active':''}">${c}</button>`).join("")}</div></div>
     <button class="btn btn-sec" id="replay-onb">▶︎ Показать обучение заново</button>`;
   body.querySelectorAll("[data-theme-set]").forEach(b=>b.onclick=()=>{S.theme=b.dataset.themeSet;applyTheme();save();renderSettings()});
+  const cc=document.getElementById("copy-code");if(cc)cc.onclick=()=>{copyText(MY_CODE);buzz("light")};
+  const ps=document.getElementById("partner-send");if(ps)ps.onclick=async()=>{
+    const code=normCode(document.getElementById("partner-code").value);
+    const txt=document.getElementById("partner-leads").value;
+    const hs=parseLeads(txt);
+    if(!/^KONVA-[A-Z0-9]{4,}$/.test(code)){toast("Введи код вида KONVA-XXXXXX");return}
+    if(!hs.length){toast("Не нашел ссылок");return}
+    ps.textContent="Отправляю…";ps.disabled=true;
+    try{const r=await partnerPush(code,hs);
+      document.getElementById("partner-leads").value="";
+      toast(r.added?`Отправлено ${r.added}`+(r.dupes?` · дублей ${r.dupes}`:""):"Все уже в базе партнера");buzz("medium");
+    }catch(e){toast(e.message==="bad_code"?"Неверный код":"Ошибка отправки - проверь связь")}
+    ps.textContent="Отправить лиды партнеру";ps.disabled=false;
+  };
   body.querySelectorAll("[data-toggle]").forEach(b=>b.onclick=()=>{S[b.dataset.toggle]=!S[b.dataset.toggle];save();renderSettings();if(b.dataset.toggle==="haptics"&&S.haptics)buzz("light")});
   body.querySelectorAll("[data-cur]").forEach(b=>b.onclick=()=>{S.currency=b.dataset.cur;save();renderSettings()});
   body.querySelectorAll("[data-deltmpl]").forEach(b=>b.onclick=()=>{state.templates.splice(+b.dataset.deltmpl,1);save();renderSettings()});
@@ -579,10 +643,10 @@ function renderSettings(){const S=state.settings,body=document.getElementById("s
   ts.onclick=()=>{const v=tn.value.trim();if(!v){toast("Пустой шаблон");return}state.templates=state.templates||[];state.templates.push(v);save();renderSettings();toast("Шаблон добавлен")};
   document.getElementById("replay-onb").onclick=()=>{state.onboarded=false;save();startOnboarding()}}
 const ONB=[
-  {ic:"⚡️",t:'Свайпай <span>лидов</span>',p:"Карточка лида — свайп вправо «написал», влево «не подходит», вверх «нет сторис». Или жми кнопки снизу. Промахнулся — внизу появится «Отмена»."},
-  {ic:"📞",t:'Веди <span>воронку</span>',p:"Кому написал — попадает в воронку. Отмечай ответил → созвон → оплату, вписывай сумму сделки и заметки про созвоны."},
-  {ic:"🕓",t:'Не теряй <span>сторис</span>',p:"Нет активной сторис? Свайп вверх — лид уходит в папку и через 24ч сам подсветится, чтобы вернуться."},
-  {ic:"📊",t:'Считай <span>деньги</span>',p:"Дашборд сам считает конверсию, заработок и воронку за день/неделю/месяц. Отчёт руками больше не пишешь."}];
+  {ic:"⚡️",t:'Свайпай <span>лидов</span>',p:"Карточка лида - свайп вправо «написал», влево «не подходит», вверх «нет сторис». Или жми кнопки снизу. Если захочешь отменеить действие - внизу появится «Отмена»."},
+  {ic:"📞",t:'Веди <span>воронку</span>',p:"Кому написал - попадает в воронку. Отмечай ответил → созвон → оплату, вписывай сумму сделки и заметки про созвоны."},
+  {ic:"🕓",t:'Не теряй <span>сторис</span>',p:"Нет активной сторис? Свайп вверх - лид уходит в папку и через 24ч сам подсветится, чтобы вернуться."},
+  {ic:"📊",t:'Считай <span>деньги</span>',p:"Дашборд сам считает конверсию, заработок и воронку за день/неделю/месяц."}];
 let onbI=0;
 function startOnboarding(){onbI=0;renderOnb()}
 function renderOnb(){const s=ONB[onbI],root=document.getElementById("onb-root");
@@ -624,6 +688,7 @@ if(!state.onboarded&&state.leads.length===0)startOnboarding();
 (async function cloudBoot(){
   setSyncDot("syncing");
   try{
+    await migrateLegacyToCode();
     const cloud=await cloudPull();
     // merge leads (local + cloud, newest wins)
     const merged=mergeStates(state.leads,cloud.leads);
