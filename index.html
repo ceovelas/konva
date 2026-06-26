@@ -352,17 +352,31 @@ async function partnerPush(code,handles){
 }
 /* one-time migration: move any legacy rows (old shared code, raw tg id) onto MY_CODE */
 async function migrateLegacyToCode(){
-  const flag="konva_migrated_"+MY_CODE;
+  const flag="konva_migrated_v2_"+MY_CODE;
   if(localStorage.getItem(flag))return;
   try{
-    const legacyIds=["KONVA-7X9F2A",rawTgId()].filter(x=>x&&x!==MY_CODE);
-    for(const legacy of legacyIds){
-      const old=await sbGet("konva_leads?tg_id=eq."+encodeURIComponent(legacy)+"&select=*");
-      if(old.length){
-        // only migrate the OLD shared code if it's plausibly the owner's own data:
-        // we move it once, on the owner's device, keyed by their migration flag.
-        const moved=old.map(r=>Object.assign({},r,{tg_id:MY_CODE,updated_at:Date.now()}));
-        await sbUpsert("konva_leads",moved,"id");
+    // raw-tg legacy is uniquely yours — always safe to absorb
+    const myRaw=rawTgId();
+    if(myRaw&&myRaw!==MY_CODE){
+      const mine=await sbGet("konva_leads?tg_id=eq."+encodeURIComponent(myRaw)+"&select=*");
+      if(mine.length){const moved=mine.map(r=>Object.assign({},r,{tg_id:MY_CODE,updated_at:Date.now()}));await sbUpsert("konva_leads",moved,"id");}
+    }
+    // the OLD SHARED code (KONVA-7X9F2A) must be claimed by exactly ONE person (you, first to open).
+    // we use a claim row in konva_settings: if unclaimed, claim it, absorb the leads, then purge.
+    const SHARED="KONVA-7X9F2A";
+    const claimRows=await sbGet("konva_settings?tg_id=eq."+encodeURIComponent("CLAIM_"+SHARED)+"&select=*");
+    const alreadyClaimed=claimRows.length>0;
+    if(!alreadyClaimed){
+      // claim it for myself
+      await sbUpsert("konva_settings",[{tg_id:"CLAIM_"+SHARED,data:{owner:MY_CODE},updated_at:Date.now()}],"tg_id");
+      // re-read to confirm I'm the owner (guards against simultaneous claim)
+      const confirm=await sbGet("konva_settings?tg_id=eq."+encodeURIComponent("CLAIM_"+SHARED)+"&select=*");
+      const owner=confirm[0]&&confirm[0].data&&confirm[0].data.owner;
+      if(owner===MY_CODE){
+        const shared=await sbGet("konva_leads?tg_id=eq."+encodeURIComponent(SHARED)+"&select=*");
+        if(shared.length){const moved=shared.map(r=>Object.assign({},r,{tg_id:MY_CODE,updated_at:Date.now()}));await sbUpsert("konva_leads",moved,"id");}
+        // purge so nobody can read the shared base anymore
+        await sbDelete("konva_leads","tg_id=eq."+encodeURIComponent(SHARED)).catch(()=>{});
       }
     }
   }catch(e){console.warn("migrate",e)}
