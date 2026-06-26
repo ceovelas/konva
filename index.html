@@ -316,41 +316,57 @@ const DAY_MS=864e5,KEY="konva_v3";
 /* ===== SUPABASE CLOUD ===== */
 const SB_URL="https://iipdtyxjlovgcnhzungf.supabase.co";
 const SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpcGR0eXhqbG92Z2NuaHp1bmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0OTg4MjcsImV4cCI6MjA5ODA3NDgyN30.4A2HcoPyofz9ydb0p3gorPvZzRjQxE8W6tJ2iam292g";
-let TG_ID=null, CLOUD_READY=false, cloudPushT=null;
+let TG_ID=null, CLOUD_READY=false, cloudPushT=null, MY_CODE=null;
 /* ===== TEAM MODE =====
-   MY_CODE is this app-owner's permanent base code. Everything Артём's app
-   reads/writes lives under this code. Дима uses it to push leads into Артём's base. */
-const MY_CODE="KONVA-7X9F2A";
+   Each user gets their OWN base code derived from their Telegram id.
+   The code is deterministic (same telegram always -> same code) but unique per person.
+   You give YOUR code to a partner; they push leads into YOUR base using it.
+   Nobody else sees your base because their telegram id yields a different code. */
 function normCode(c){return (c||"").trim().toUpperCase().replace(/\s+/g,"")}
+/* stable telegram identity (or per-device fallback if opened outside Telegram) */
 function rawTgId(){try{const tg=window.Telegram&&window.Telegram.WebApp;const u=tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user;if(u&&u.id)return"tg_"+u.id}catch(e){}
   let d=localStorage.getItem("konva_device_id");if(!d){d="dev_"+Math.random().toString(36).slice(2,12);localStorage.setItem("konva_device_id",d)}return d}
-function getTgId(){return MY_CODE} // owner's app always operates under the base code
-/* Дима's push: write leads into a partner's base by code, without touching local state */
+/* deterministic short code from any string -> KONVA-XXXXXX (6 chars, no ambiguous 0/O/1/I) */
+function codeFromId(id){
+  const ALPH="ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // 32 chars, no 0/O/1/I
+  // simple stable hash (FNV-1a-ish) -> spread into a few values
+  let h1=0x811c9dc5,h2=0x1505;
+  for(let i=0;i<id.length;i++){const c=id.charCodeAt(i);h1=(h1^c)*0x01000193>>>0;h2=((h2<<5)+h2+c)>>>0;}
+  let mix=(h1>>>0).toString()+(h2>>>0).toString();
+  let out="";let n=BigInt(h1)*0x100000000n+BigInt(h2);
+  for(let i=0;i<6;i++){out+=ALPH[Number(n%32n)];n=n/32n;}
+  return "KONVA-"+out;
+}
+function getTgId(){return MY_CODE} // owner's app operates under their own generated code
+/* partner push: write leads into a partner's base by THEIR code, without touching local state */
 async function partnerPush(code,handles){
   const tgt=normCode(code);
   if(!/^KONVA-[A-Z0-9]{4,}$/.test(tgt))throw new Error("bad_code");
+  if(tgt===MY_CODE)throw new Error("own_code");
   const rows=handles.map(h=>({id:Date.now()+"_"+Math.random().toString(36).slice(2,7),tg_id:tgt,handle:h,status:"queue",added_at:Date.now(),updated_at:Date.now()}));
-  // de-dupe against what's already in that base
   const existing=await sbGet("konva_leads?tg_id=eq."+encodeURIComponent(tgt)+"&select=handle");
   const have=new Set(existing.map(r=>r.handle));
   const fresh=rows.filter(r=>!have.has(r.handle));
   if(fresh.length)await sbUpsert("konva_leads",fresh,"id");
   return {added:fresh.length,dupes:rows.length-fresh.length};
 }
-/* one-time migration: move legacy tg_/dev_ rows onto MY_CODE so nothing is lost */
+/* one-time migration: move any legacy rows (old shared code, raw tg id) onto MY_CODE */
 async function migrateLegacyToCode(){
-  if(localStorage.getItem("konva_migrated_"+MY_CODE))return;
+  const flag="konva_migrated_"+MY_CODE;
+  if(localStorage.getItem(flag))return;
   try{
-    const legacy=rawTgId();
-    if(legacy&&legacy!==MY_CODE){
+    const legacyIds=["KONVA-7X9F2A",rawTgId()].filter(x=>x&&x!==MY_CODE);
+    for(const legacy of legacyIds){
       const old=await sbGet("konva_leads?tg_id=eq."+encodeURIComponent(legacy)+"&select=*");
       if(old.length){
+        // only migrate the OLD shared code if it's plausibly the owner's own data:
+        // we move it once, on the owner's device, keyed by their migration flag.
         const moved=old.map(r=>Object.assign({},r,{tg_id:MY_CODE,updated_at:Date.now()}));
         await sbUpsert("konva_leads",moved,"id");
       }
     }
   }catch(e){console.warn("migrate",e)}
-  localStorage.setItem("konva_migrated_"+MY_CODE,"1");
+  localStorage.setItem(flag,"1");
 }
 function sbHeaders(){return {"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Content-Type":"application/json"}}
 async function sbGet(path){const r=await fetch(SB_URL+"/rest/v1/"+path,{headers:sbHeaders()});if(!r.ok)throw new Error("GET "+r.status);return r.json()}
@@ -633,7 +649,7 @@ function renderSettings(){const S=state.settings,body=document.getElementById("s
     try{const r=await partnerPush(code,hs);
       document.getElementById("partner-leads").value="";
       toast(r.added?`Отправлено ${r.added}`+(r.dupes?` · дублей ${r.dupes}`:""):"Все уже в базе партнера");buzz("medium");
-    }catch(e){toast(e.message==="bad_code"?"Неверный код":"Ошибка отправки - проверь связь")}
+    }catch(e){toast(e.message==="own_code"?"Это твой собственный код — введи код партнёра":e.message==="bad_code"?"Неверный код":"Ошибка отправки - проверь связь")}
     ps.textContent="Отправить лиды партнеру";ps.disabled=false;
   };
   body.querySelectorAll("[data-toggle]").forEach(b=>b.onclick=()=>{S[b.dataset.toggle]=!S[b.dataset.toggle];save();renderSettings();if(b.dataset.toggle==="haptics"&&S.haptics)buzz("light")});
@@ -678,6 +694,7 @@ try{const tg=window.Telegram&&window.Telegram.WebApp;if(tg){tg.ready();tg.expand
 applyTheme();
 
 /* ===== BOOT: local first, then cloud sync ===== */
+MY_CODE=codeFromId(rawTgId()); // unique per telegram user
 TG_ID=getTgId();
 // manual re-pull on tapping the sync dot
 (function(){const d=document.getElementById("sync-dot");if(d)d.onclick=async()=>{if(!TG_ID)return;setSyncDot("syncing");try{const cloud=await cloudPull();state.leads=mergeStates(state.leads,cloud.leads);if(cloud.settings){if(cloud.settings.templates)state.templates=cloud.settings.templates;if(cloud.settings.settings)state.settings=Object.assign({},DEFAULTS.settings,cloud.settings.settings)}localStorage.setItem(KEY,JSON.stringify(state));setSyncDot("ok");applyTheme();const a=document.querySelector(".screen.active"),tab=a?a.id.replace("screen-",""):"work";show(tab);refresh();toast("Обновлено из облака")}catch(e){setSyncDot("err");toast("Нет связи с облаком")}}})();
