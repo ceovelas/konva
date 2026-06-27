@@ -72,8 +72,11 @@
   .glass::before{content:"";position:absolute;top:0;left:0;right:0;height:42%;background:linear-gradient(180deg,rgba(255,255,255,.12),transparent);pointer-events:none}
 
   /* header */
-  header{padding:22px 22px 10px;display:flex;align-items:center;justify-content:space-between}
-  .logo{font-weight:900;font-size:26px;letter-spacing:-1.4px;line-height:1}
+  header{padding:18px 20px 8px;display:flex;align-items:center;gap:14px;min-height:64px}
+  .back-btn{width:42px;height:42px;flex-shrink:0;border-radius:50%;border:1px solid var(--line2);background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);box-shadow:var(--glass-edge);color:var(--txt);font-size:22px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--spring)}
+  .back-btn:active{transform:scale(.88)}
+  .logo{font-weight:900;font-size:26px;letter-spacing:-1.4px;line-height:1;flex:1}
+  .page-title{font-weight:800;font-size:22px;letter-spacing:-.8px;flex:1}
   .head-right{display:flex;align-items:center;gap:12px}
   .sync-dot{width:9px;height:9px;border-radius:50%;background:var(--muted2);flex-shrink:0;transition:var(--tap);cursor:pointer}
   .sync-dot.syncing{background:var(--orange);animation:pulse 1s infinite}
@@ -85,21 +88,35 @@
   .today-chip .num{font-weight:900;font-size:16px;color:var(--txt);letter-spacing:-.5px}
   .today-chip .lbl{font-size:11px;font-weight:600;color:var(--muted)}
 
-  /* nav — floating liquid-glass dock */
-  nav{display:flex;gap:3px;padding:8px;margin:4px 12px 14px;position:sticky;top:8px;z-index:8;
-    background:var(--glass);backdrop-filter:var(--blur-strong);-webkit-backdrop-filter:var(--blur-strong);
-    border:1px solid var(--line2);box-shadow:var(--glass-edge),0 12px 36px rgba(0,0,0,.4);border-radius:24px}
-  nav button{flex:1;background:transparent;border:none;color:var(--muted);font-size:9.5px;font-weight:700;padding:9px 1px;border-radius:18px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;transition:var(--spring);position:relative;letter-spacing:.2px;overflow:hidden}
-  nav button .ic{font-size:17px;line-height:1;transition:var(--spring);filter:grayscale(1) opacity(.6)}
-  nav button.active{color:var(--bg);background:var(--hi);box-shadow:0 6px 18px rgba(0,0,0,.3)}
-  nav button.active .ic{filter:none;transform:scale(1.08)}
-  nav button:active{transform:scale(.9)}
-  nav button .dot{position:absolute;top:3px;right:calc(50% - 17px);min-width:15px;height:15px;padding:0 3px;background:var(--orange);color:#fff;font-size:9px;font-weight:800;border-radius:99px;display:flex;align-items:center;justify-content:center}
+  /* ===== HOME HUB ===== */
+  .home-hero{padding:8px 4px 22px}
+  .hh-greet{font-size:15px;font-weight:600;color:var(--muted);margin-bottom:6px}
+  .hh-stat{font-size:30px;font-weight:800;letter-spacing:-1px;color:var(--txt)}
+  .hh-stat b{color:var(--orange)}
+  .tile{display:block;width:100%;text-align:left;border:1px solid var(--line2);border-radius:26px;cursor:pointer;
+    background:var(--glass-card);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);box-shadow:var(--glass-edge),0 10px 30px rgba(0,0,0,.28);
+    transition:var(--spring);position:relative;overflow:hidden;color:var(--txt);padding:22px}
+  .tile:active{transform:scale(.97)}
+  .tile::before{content:"";position:absolute;top:0;left:0;right:0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,.1),transparent);pointer-events:none}
+  .tile-primary{background:var(--orange);border-color:transparent;color:#fff;margin-bottom:12px;padding:24px;box-shadow:0 14px 40px rgba(255,122,61,.35)}
+  .tile-primary .tile-sub{color:rgba(255,255,255,.8)}
+  .tile-primary::after{content:"";position:absolute;inset:0;background:var(--hatch);opacity:.18;pointer-events:none}
+  .tile-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+  .tile-ic{font-size:30px;line-height:1;display:block;margin-bottom:14px}
+  .tile-primary .tile-ic{margin-bottom:0;font-size:34px}
+  .tile-badge{background:rgba(255,255,255,.22);color:#fff;font-size:12px;font-weight:800;padding:7px 14px;border-radius:999px}
+  .tile-title{font-size:24px;font-weight:900;letter-spacing:-.8px;line-height:1.05}
+  .tile-title.sm{font-size:19px}
+  .tile-sub{font-size:13px;color:var(--muted);font-weight:600;margin-top:5px}
+  .tile-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+  .tile-dot{position:absolute;top:20px;right:20px;min-width:24px;height:24px;padding:0 7px;background:var(--orange);color:#fff;font-size:12px;font-weight:800;border-radius:999px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(255,122,61,.5)}
+  .home-settings{width:100%;margin-top:6px;background:transparent;border:none;color:var(--muted);font-size:14px;font-weight:600;padding:16px;cursor:pointer;border-radius:18px;transition:var(--tap)}
+  .home-settings:active{background:var(--card)}
 
-  main{flex:1;padding:0 16px 130px}
+  main{flex:1;padding:0 16px 50px}
   .screen{display:none}
-  .screen.active{display:block;animation:glassIn .55s cubic-bezier(.22,1.1,.36,1)}
-  @keyframes glassIn{from{opacity:0;transform:translateY(14px) scale(.985);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
+  .screen.active{display:block;animation:glassIn .5s cubic-bezier(.22,1,.36,1)}
+  @keyframes glassIn{from{opacity:0;transform:translateY(16px) scale(.98);filter:blur(4px)}to{opacity:1;transform:none;filter:none}}
   @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
   .h2{font-size:30px;font-weight:900;margin:12px 2px 2px;letter-spacing:-1.4px;line-height:1.02}
   .sub{font-size:13px;color:var(--muted);margin:8px 2px 18px;line-height:1.5;font-weight:500;max-width:330px}
@@ -294,47 +311,44 @@
 </head>
 <body>
 <div id="app">
-  <header>
-    <div class="logo">Kon<span>va</span></div>
-    <div class="head-right"><span id="sync-dot" style="display:none"></span><div class="today-chip" id="today-chip"><span class="num" id="today-num">0</span><span class="lbl">сегодня</span></div></div>
+  <header id="topbar">
+    <button class="back-btn" id="back-btn" style="display:none">←</button>
+    <div class="logo" id="logo">Kon<span>va</span></div>
+    <div class="page-title" id="page-title" style="display:none"></div>
+    <div class="head-right"><span id="sync-dot" style="display:none"></span><div class="today-chip" id="today-chip" style="display:none"><span class="num" id="today-num">0</span><span class="lbl">сегодня</span></div></div>
   </header>
-  <nav>
-    <button data-tab="work" class="active"><span class="ic">⚡️</span>Отписка</button>
-    <button data-tab="funnel"><span class="ic">📞</span>Воронка</button>
-    <button data-tab="later"><span class="ic">🕓</span>Сторис</button>
-    <button data-tab="dash"><span class="ic">📊</span>Дашборд</button>
-    <button data-tab="load"><span class="ic">＋</span>База</button>
-    <button data-tab="settings"><span class="ic">⚙️</span>Ещё</button>
-  </nav>
   <main>
-    <section class="screen active" id="screen-work"><div id="work-body"></div></section>
+    <!-- HOME HUB -->
+    <section class="screen active" id="screen-home"><div id="home-body"></div></section>
+    <!-- WORK / отписка -->
+    <section class="screen" id="screen-work"><div id="work-body"></div></section>
+    <!-- FUNNEL -->
     <section class="screen" id="screen-funnel">
-      <div class="h2">Воронка</div>
-      <p class="sub">Кому написал. Двигай по этапам, ставь заметки и суммы сделок.</p>
       <div class="seg" id="funnel-seg"><button data-f="all" class="active">Все</button><button data-f="call">Созвон</button><button data-f="won">Оплата</button></div>
       <div id="funnel-body"></div>
     </section>
-    <section class="screen" id="screen-later">
-      <div class="h2">Нет сторис</div>
-      <p class="sub">Ждут активную сторис. Через 24ч карточка созреет — вернёшь одним тапом.</p>
-      <div id="later-body"></div>
-    </section>
+    <!-- LATER -->
+    <section class="screen" id="screen-later"><div id="later-body"></div></section>
+    <!-- DASH -->
     <section class="screen" id="screen-dash">
-      <div class="h2">Дашборд</div>
-      <div class="seg" id="dash-seg"><button data-p="day" class="active">День</button><button data-p="week">Неделя</button><button data-p="month">Месяц</button><button data-p="all">Всё</button></div>
+      <div class="seg" id="dash-seg"><button data-p="day" class="active">День</button><button data-p="week">Неделя</button><button data-p="month">Месяц</button></div>
       <div id="dash-body"></div>
     </section>
+    <!-- LOAD -->
     <section class="screen" id="screen-load">
-      <div class="h2">Загрузить лидов</div>
       <p class="sub">Вставь как угодно — ссылки, @юзернеймы, вперемешку с текстом. Выдерну сам, дубли отброшу.</p>
       <textarea class="load" id="load-input" placeholder="https://instagram.com/leadone&#10;@lead_two ..."></textarea>
       <div class="preview" id="load-preview"></div>
       <button class="btn btn-primary" id="load-btn">Добавить в базу</button>
-      <button class="btn btn-sec" id="batch-btn">⚡️ Батч-режим (открыть 10 подряд)</button>
+      <button class="btn btn-sec" id="batch-btn">Батч-режим · открыть 10 подряд</button>
       <button class="danger" id="wipe-btn">Очистить всю базу</button>
     </section>
-    <section class="screen" id="screen-settings"><div class="h2">Настройки</div><div id="settings-body"></div></section>
+    <!-- SETTINGS -->
+    <section class="screen" id="screen-settings"><div id="settings-body"></div></section>
   </main>
+</div>
+<div id="hidden-tabs" style="display:none">
+  <button data-tab="work"></button><button data-tab="funnel"></button><button data-tab="later"></button><button data-tab="dash"></button><button data-tab="load"></button><button data-tab="settings"></button>
 </div>
 <div class="toast" id="toast"></div>
 <div id="onb-root"></div>
@@ -581,12 +595,19 @@ function renderDash(){const body=document.getElementById("dash-body"),p=dashPeri
   const wonArr=L.filter(l=>l.deal==="won"&&inPeriod(l.wroteAt,p));
   const wonN=wonArr.length,money=wonArr.reduce((s,l)=>s+(+l.amount||0),0);
   const nostory=L.filter(l=>l.status==="nostory").length,inq=L.filter(l=>l.status==="queue").length;
-  const periodName={day:"сегодня",week:"за 7 дней",month:"за 30 дней",all:"за все время"}[p];
-  let html=`<div class="kpi-grid">
-    <div class="kpi hero"><div class="n">${money.toLocaleString("ru-RU")}${cur()}</div><div class="l">заработано ${periodName}</div></div>
-    <div class="kpi"><div class="n">${wrote}</div><div class="l">написал</div></div>
-    <div class="kpi orange"><div class="n">${calls}</div><div class="l">созвонов</div></div>
-    <div class="kpi"><div class="n">${wonN}</div><div class="l">оплат получено</div></div>
+  const periodName={day:"сегодня",week:"за 7 дней",month:"за 30 дней"}[p];
+  const showMoney=(p!=="day"); // в дне деньги почти всегда 0 — не выносим
+  let html=`<div class="kpi-grid">`;
+  if(showMoney){
+    html+=`<div class="kpi hero"><div class="n">${money.toLocaleString("ru-RU")}${cur()}</div><div class="l">заработано ${periodName}</div></div>`;
+    html+=`<div class="kpi"><div class="n">${wrote}</div><div class="l">написал</div></div>
+      <div class="kpi orange"><div class="n">${calls}</div><div class="l">созвонов</div></div>`;
+  }else{
+    html+=`<div class="kpi hero"><div class="n">${wrote}</div><div class="l">написано ${periodName}</div></div>`;
+    html+=`<div class="kpi"><div class="n">${answered}</div><div class="l">ответили</div></div>
+      <div class="kpi orange"><div class="n">${calls}</div><div class="l">созвонов</div></div>`;
+  }
+  html+=`<div class="kpi"><div class="n">${wonN}</div><div class="l">оплат</div></div>
     <div class="kpi"><div class="n">${bad}</div><div class="l">не подошло</div></div>
   </div>`;
   html+=`<div class="chart-card"><div class="chart-title">Воронка <span>${periodName}</span></div>${funnelViz(wrote,answered,calls,wonN,S)}</div>`;
@@ -600,13 +621,12 @@ function renderDash(){const body=document.getElementById("dash-body"),p=dashPeri
   if(S.stageCall)html+=`<div class="conv-row"><span>${S.stageAnswered?"Ответил":"Написал"} → Созвон</span><span><b>${calls}/${callBase}</b> · <span class="pct">${callC}%</span></span></div><div class="track"><i class="w" style="width:${callC}%"></i></div>`;
   html+=`<div class="conv-row"><span>${S.stageCall?"Созвон":(S.stageAnswered?"Ответил":"Написал")} → Оплата</span><span><b>${wonN}/${wonBase}</b> · <span class="pct">${wonC}%</span></span></div><div class="track"><i class="g" style="width:${wonC}%"></i></div></div>`;
   html+=`<div class="chart-card"><div class="chart-title">Отписки по дням <span>последние 7 дней</span></div>${barChart7()}</div>`;
-  html+=`<div class="cmp-title">Эта неделя vs прошлая</div>${compareBlock()}`;
-  html+=`<div class="kpi-grid" style="margin-top:11px"><div class="kpi orange"><div class="n">${nostory}</div><div class="l">ждут сторис</div></div><div class="kpi"><div class="n">${inq}</div><div class="l">в очереди</div></div></div>`;
-  html+=`<button class="btn btn-primary" id="report-btn" style="margin-top:18px">📸 Отчёт за день · картинкой</button>`;
-  html+=`<button class="btn btn-sec" id="export-btn" style="margin-top:11px">⬇️ Экспорт базы в CSV</button>`;
+  if(p!=="day"){html+=`<div class="cmp-title">Эта неделя vs прошлая</div>${compareBlock()}`;}
+  html+=`<button class="btn btn-primary" id="report-btn" style="margin-top:18px">📸 Отчёт ${periodName} · картинкой</button>`;
+  html+=`<button class="btn btn-sec" id="export-btn" style="margin-top:11px">Экспорт базы в CSV</button>`;
   body.innerHTML=html;
   const ex=document.getElementById("export-btn");if(ex)ex.onclick=exportCSV;
-  const rb=document.getElementById("report-btn");if(rb)rb.onclick=()=>makeReportImage()}
+  const rb=document.getElementById("report-btn");if(rb)rb.onclick=()=>makeReportImage(dashPeriod)}
 function funnelViz(wrote,answered,calls,won,S){
   const steps=[{l:"Написал",v:wrote,c:"var(--hi)",t:"var(--bg)"}];
   if(S.stageAnswered)steps.push({l:"Ответили",v:answered,c:"var(--txt2)",t:"var(--bg)"});
@@ -638,9 +658,11 @@ function compareBlock(){const now=Date.now();
   const arrow=(a,b)=>a>b?`<div class="arrow up">▲ ${b?Math.round((a-b)/b*100):100}%</div>`:a<b?`<div class="arrow down">▼ ${b?Math.round((b-a)/b*100):0}%</div>`:`<div class="arrow flat">=</div>`;
   return `<div class="cmp"><div class="col cmp-prev"><div class="cn">${pW}</div><div class="cl">прошлая</div></div>${arrow(tW,pW)}<div class="col cmp-now"><div class="cn">${tW}</div><div class="cl">эта · отписки</div></div></div>
   <div class="cmp" style="margin-top:9px"><div class="col cmp-prev"><div class="cn">${pWon}</div><div class="cl">прошлая</div></div>${arrow(tWon,pWon)}<div class="col cmp-now"><div class="cn">${tWon}</div><div class="cl">эта · оплаты</div></div></div>`}
-/* ===== DAILY REPORT IMAGE (canvas -> PNG) ===== */
-function makeReportImage(){
-  const now=new Date(), t0=startOfDay(now.getTime()), L=state.leads;
+/* ===== REPORT IMAGE (canvas -> PNG), period: day|week|month ===== */
+function makeReportImage(period){
+  period=period||"day";
+  const now=new Date(), L=state.leads;
+  let t0; if(period==="day")t0=startOfDay(now.getTime()); else if(period==="week")t0=now.getTime()-7*DAY_MS; else t0=now.getTime()-30*DAY_MS;
   const wrote=L.filter(l=>l.wroteAt&&l.wroteAt>=t0).length;
   const answered=L.filter(l=>l.answered==="yes"&&l.wroteAt&&l.wroteAt>=t0).length;
   const calls=L.filter(l=>l.call==="yes"&&l.wroteAt&&l.wroteAt>=t0).length;
@@ -648,36 +670,39 @@ function makeReportImage(){
   const won=wonArr.length, money=wonArr.reduce((s,l)=>s+(+l.amount||0),0);
   const bad=L.filter(l=>l.badAt&&l.badAt>=t0).length;
   const S=state.settings;
-  const dateStr=now.toLocaleDateString("ru-RU",{day:"numeric",month:"long",year:"numeric"});
+  const periodLabel={day:"отчёт за день",week:"отчёт за неделю",month:"отчёт за месяц"}[period];
+  const heroSubLabel={day:"написано сегодня",week:"заработано за 7 дней",month:"заработано за 30 дней"}[period];
+  const dateStr=period==="day"
+    ? now.toLocaleDateString("ru-RU",{day:"numeric",month:"long",year:"numeric"})
+    : new Date(t0).toLocaleDateString("ru-RU",{day:"numeric",month:"short"})+" — "+now.toLocaleDateString("ru-RU",{day:"numeric",month:"short"});
+  const showMoney=(period!=="day");
   const light=S.theme==="light";
 
   const DPR=2, W=1080, H=1350, c=document.createElement("canvas");
   c.width=W*DPR;c.height=H*DPR;const x=c.getContext("2d");x.scale(DPR,DPR);
-  // bg
   const bg=light?"#e7e7ec":"#0c0c0e";x.fillStyle=bg;x.fillRect(0,0,W,H);
-  // mesh blobs
   function blob(cx,cy,r,col){const g=x.createRadialGradient(cx,cy,0,cx,cy,r);g.addColorStop(0,col);g.addColorStop(1,"rgba(0,0,0,0)");x.fillStyle=g;x.beginPath();x.arc(cx,cy,r,0,7);x.fill()}
   blob(180,200,420,"rgba(255,122,61,.32)");blob(920,150,380,"rgba(120,140,255,.22)");blob(820,1150,460,"rgba(255,122,61,.20)");blob(150,1180,380,"rgba(90,200,255,.16)");
   const txt=light?"#0e0e12":"#f5f5f7", mut=light?"#6b6b73":"#9a9aa2", hi=light?"#0e0e12":"#ffffff", orange="#ff7a3d";
   const PAD=80;
-  // header
   x.textBaseline="alphabetic";
   x.fillStyle=txt;x.font="900 64px Montserrat, sans-serif";x.fillText("Konva",PAD,140);
   x.fillStyle=orange;x.fillText(".",PAD+x.measureText("Konva").width,140);
-  x.fillStyle=mut;x.font="600 30px Montserrat, sans-serif";x.textAlign="right";x.fillText("отчёт за день",W-PAD,108);
-  x.fillStyle=txt;x.font="800 34px Montserrat, sans-serif";x.fillText(dateStr,W-PAD,150);x.textAlign="left";
-  // divider
+  x.fillStyle=mut;x.font="600 30px Montserrat, sans-serif";x.textAlign="right";x.fillText(periodLabel,W-PAD,108);
+  x.fillStyle=txt;x.font="800 32px Montserrat, sans-serif";x.fillText(dateStr,W-PAD,150);x.textAlign="left";
   x.strokeStyle=light?"rgba(0,0,0,.12)":"rgba(255,255,255,.12)";x.lineWidth=2;x.beginPath();x.moveTo(PAD,195);x.lineTo(W-PAD,195);x.stroke();
-  // hero money card
   function rr(rx,ry,rw,rh,rad){x.beginPath();x.moveTo(rx+rad,ry);x.arcTo(rx+rw,ry,rx+rw,ry+rh,rad);x.arcTo(rx+rw,ry+rh,rx,ry+rh,rad);x.arcTo(rx,ry+rh,rx,ry,rad);x.arcTo(rx,ry,rx+rw,ry,rad);x.closePath()}
   const cardW=W-PAD*2;
+  // hero: money for week/month, written-count for day
+  const heroVal=showMoney?(money.toLocaleString("ru-RU")+cur()):String(wrote);
   x.fillStyle=hi;rr(PAD,250,cardW,230,40);x.fill();
-  // hatch on hero
   x.save();rr(PAD,250,cardW,230,40);x.clip();x.strokeStyle="rgba(0,0,0,.07)";x.lineWidth=3;for(let i=-300;i<cardW;i+=22){x.beginPath();x.moveTo(PAD+i,250);x.lineTo(PAD+i+230,480);x.stroke()}x.restore();
-  x.fillStyle=light?"#fff":"#0c0c0e";x.font="900 110px Montserrat, sans-serif";x.fillText(money.toLocaleString("ru-RU")+cur(),PAD+44,400);
-  x.fillStyle=light?"rgba(255,255,255,.65)":"rgba(12,12,14,.55)";x.font="700 30px Montserrat, sans-serif";x.fillText("за{0}работано сегодня".replace("{0}",""),PAD+46,445);
-  // metric tiles 2x2
-  const tiles=[["Написал",wrote,txt],["Ответили",answered,orange],["Созвоны",calls,txt],["Оплаты",won,orange]];
+  x.fillStyle=light?"#fff":"#0c0c0e";x.font="900 110px Montserrat, sans-serif";x.fillText(heroVal,PAD+44,400);
+  x.fillStyle=light?"rgba(255,255,255,.65)":"rgba(12,12,14,.55)";x.font="700 30px Montserrat, sans-serif";x.fillText(heroSubLabel,PAD+46,445);
+  // tiles 2x2 — day excludes money tile, shows бад instead
+  const tiles=showMoney
+    ? [["Написал",wrote,txt],["Ответили",answered,orange],["Созвоны",calls,txt],["Оплаты",won,orange]]
+    : [["Ответили",answered,txt],["Созвоны",calls,orange],["Оплаты",won,txt],["Не подошло",bad,mut]];
   const tw=(cardW-30)/2, th=180, gx=30, gy=30;let ty=520;
   function tile(tx,tyy,label,val,col){
     x.fillStyle=light?"rgba(255,255,255,.6)":"rgba(255,255,255,.06)";rr(tx,tyy,tw,th,32);x.fill();
@@ -689,7 +714,6 @@ function makeReportImage(){
   tile(PAD+tw+gx,ty,tiles[1][0],tiles[1][1],tiles[1][2]);
   tile(PAD,ty+th+gy,tiles[2][0],tiles[2][1],tiles[2][2]);
   tile(PAD+tw+gx,ty+th+gy,tiles[3][0],tiles[3][1],tiles[3][2]);
-  // conversion line
   let cy2=ty+th*2+gy*2+70;
   const callBase=S.stageAnswered?answered:wrote, wonBase=S.stageCall?calls:callBase;
   const ansC=wrote?Math.round(answered/wrote*100):0, callC=callBase?Math.round(calls/callBase*100):0, wonC=wonBase?Math.round(won/wonBase*100):0;
@@ -697,7 +721,6 @@ function makeReportImage(){
   function convRow(label,val,yy){
     x.fillStyle=txt;x.font="700 30px Montserrat, sans-serif";x.fillText(label,PAD,yy);
     x.textAlign="right";x.fillStyle=txt;x.font="900 32px Montserrat, sans-serif";x.fillText(val+"%",W-PAD,yy);x.textAlign="left";
-    // track
     const trackY=yy+18,trackW=cardW;x.fillStyle=light?"rgba(0,0,0,.08)":"rgba(255,255,255,.08)";rr(PAD,trackY,trackW,14,7);x.fill();
     x.fillStyle=orange;rr(PAD,trackY,Math.max(14,trackW*val/100),14,7);x.fill();
   }
@@ -705,16 +728,18 @@ function makeReportImage(){
   if(S.stageAnswered){convRow("Написал → Ответил",ansC,rowY);rowY+=84}
   if(S.stageCall){convRow((S.stageAnswered?"Ответил":"Написал")+" → Созвон",callC,rowY);rowY+=84}
   convRow((S.stageCall?"Созвон":(S.stageAnswered?"Ответил":"Написал"))+" → Оплата",wonC,rowY);rowY+=84;
-  // footer
   x.fillStyle=mut;x.font="600 26px Montserrat, sans-serif";x.textAlign="center";
-  x.fillText("не подошло: "+bad+"  ·  в очереди: "+L.filter(l=>l.status==="queue").length,W/2,H-70);
+  const footL=showMoney?("написано: "+wrote+"  ·  не подошло: "+bad):("в очереди: "+L.filter(l=>l.status==="queue").length+"  ·  заработано: "+money.toLocaleString("ru-RU")+cur());
+  x.fillText(footL,W/2,H-70);
   x.fillStyle=orange;x.font="800 28px Montserrat, sans-serif";x.fillText("Konva — CRM для холодного аутрича",W/2,H-32);
   x.textAlign="left";
 
   c.toBlob(blob2=>{
-    const fname="konva_report_"+now.toISOString().slice(0,10)+".png";
-    const caption="Konva · отчёт за "+dateStr+"\nНаписал: "+wrote+" · Ответили: "+answered+" · Созвоны: "+calls+" · Оплаты: "+won+" · Заработано: "+money.toLocaleString("ru-RU")+cur();
-    shareImage(blob2,fname,caption);
+    const fname="konva_"+period+"_"+now.toISOString().slice(0,10)+".png";
+    const cap=showMoney
+      ? "Konva · "+periodLabel+" ("+dateStr+")\nНаписал: "+wrote+" · Ответили: "+answered+" · Созвоны: "+calls+" · Оплаты: "+won+" · Заработано: "+money.toLocaleString("ru-RU")+cur()
+      : "Konva · "+periodLabel+" ("+dateStr+")\nНаписал: "+wrote+" · Ответили: "+answered+" · Созвоны: "+calls+" · Оплаты: "+won;
+    shareImage(blob2,fname,cap);
   },"image/png");
 }
 function shareImage(blob,fname,caption){
@@ -808,15 +833,73 @@ function renderOnb(){const s=ONB[onbI],root=document.getElementById("onb-root");
 function finishOnb(){state.onboarded=true;save();document.getElementById("onb-root").innerHTML=""}
 function applyTheme(){document.documentElement.setAttribute("data-theme",state.settings.theme);
   try{const tg=window.Telegram&&window.Telegram.WebApp,c=state.settings.theme==="dark"?"#0c0c0e":"#dcdce2";tg&&tg.setHeaderColor&&tg.setHeaderColor(c);tg&&tg.setBackgroundColor&&tg.setBackgroundColor(c)}catch(e){}}
-function refresh(){document.getElementById("today-num").textContent=todayWrote();
+function refresh(){const tn=document.getElementById("today-num");if(tn)tn.textContent=todayWrote();
+  const homeActive=document.getElementById("screen-home").classList.contains("active");
+  if(homeActive)renderHome();}
+const TITLES={work:"Отписка",funnel:"Воронка",later:"Нет сторис",dash:"Отчёты",load:"Загрузить базу",settings:"Настройки"};
+function show(tab){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  const scr=document.getElementById("screen-"+tab);if(scr)scr.classList.add("active");
+  const isHome=tab==="home";
+  // header morph
+  document.getElementById("back-btn").style.display=isHome?"none":"flex";
+  document.getElementById("logo").style.display=isHome?"block":"none";
+  document.getElementById("page-title").style.display=isHome?"none":"block";
+  document.getElementById("page-title").textContent=TITLES[tab]||"";
+  document.getElementById("today-chip").style.display=(tab==="work")?"flex":"none";
+  document.body.scrollTop=0;window.scrollTo(0,0);
+  if(isHome)renderHome();
+  if(tab==="work"){batchSession.start=0;renderWork()}
+  if(tab==="funnel")renderFunnel();if(tab==="later")renderLater();if(tab==="dash")renderDash();if(tab==="settings")renderSettings()}
+document.getElementById("back-btn").onclick=()=>{buzz("light");show("home")};
+document.querySelectorAll("#hidden-tabs button").forEach(b=>b.onclick=()=>show(b.dataset.tab));
+
+/* ===== HOME HUB ===== */
+function renderHome(){
+  const body=document.getElementById("home-body"),q=queue().length;
+  const wrote=todayWrote();
+  const funnelN=state.leads.filter(l=>l.status==="wrote").length;
   const ready=state.leads.filter(l=>l.status==="nostory"&&(l.nostoryAt+DAY_MS)<=Date.now()).length;
-  document.querySelectorAll("nav button").forEach(b=>{let o=b.querySelector(".dot");if(o)o.remove();
-    if(b.dataset.tab==="later"&&ready>0){const d=document.createElement("span");d.className="dot";d.textContent=ready;b.appendChild(d)}})}
-function show(tab){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
-  document.getElementById("screen-"+tab).classList.add("active");
-  document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));
-  if(tab==="work"){batchSession.start=0;renderWork()}if(tab==="funnel")renderFunnel();if(tab==="later")renderLater();if(tab==="dash")renderDash();if(tab==="settings")renderSettings()}
-document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>show(b.dataset.tab));
+  const nostoryN=state.leads.filter(l=>l.status==="nostory").length;
+  const hour=new Date().getHours();
+  const greet=hour<6?"Доброй ночи":hour<12?"Доброе утро":hour<18?"Добрый день":"Добрый вечер";
+  body.innerHTML=`
+    <div class="home-hero">
+      <div class="hh-greet">${greet} 👋</div>
+      <div class="hh-stat"><b>${wrote}</b> отписано сегодня</div>
+    </div>
+    <button class="tile tile-primary" data-go="work">
+      <div class="tile-top"><span class="tile-ic">⚡</span>${q?`<span class="tile-badge">${q} в очереди</span>`:""}</div>
+      <div class="tile-title">Начать отписку</div>
+      <div class="tile-sub">${q?"Свайпай лидов по одному":"Очередь пуста — загрузи базу"}</div>
+    </button>
+    <div class="tile-row">
+      <button class="tile" data-go="load">
+        <span class="tile-ic">＋</span>
+        <div class="tile-title sm">Загрузить</div>
+        <div class="tile-sub">в базу</div>
+      </button>
+      <button class="tile" data-go="dash">
+        <span class="tile-ic">📊</span>
+        <div class="tile-title sm">Отчёты</div>
+        <div class="tile-sub">аналитика</div>
+      </button>
+    </div>
+    <div class="tile-row">
+      <button class="tile" data-go="funnel">
+        <span class="tile-ic">📞</span>
+        <div class="tile-title sm">Воронка</div>
+        <div class="tile-sub">${funnelN} в работе</div>
+      </button>
+      <button class="tile" data-go="later">
+        <span class="tile-ic">🕓</span>${ready?`<span class="tile-dot">${ready}</span>`:""}
+        <div class="tile-title sm">Нет сторис</div>
+        <div class="tile-sub">${nostoryN?nostoryN+" ждут":"пусто"}</div>
+      </button>
+    </div>
+    <button class="home-settings" data-go="settings">⚙️ Настройки и команда</button>`;
+  body.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{buzz("light");show(b.dataset.go)});
+}
 const li=document.getElementById("load-input");
 li.addEventListener("input",()=>{const p=parseLeads(li.value);document.getElementById("load-preview").innerHTML=p.length?`Распознано <b>${p.length}</b>: ${p.slice(0,6).map(h=>"@"+h).join(", ")}${p.length>6?" …":""}`:`Вставь ссылки или @юзернеймы.`});
 document.getElementById("load-btn").onclick=()=>{const p=parseLeads(li.value);if(!p.length){toast("Не нашёл ссылок");return}const n=addLeads(p);li.value="";document.getElementById("load-preview").innerHTML="";toast(n?`Добавлено ${n}`+(p.length-n?` · дублей ${p.length-n}`:""):"Все уже в базе");show("work")};
@@ -833,8 +916,8 @@ TG_ID=getTgId();
 // manual re-pull on tapping the sync dot
 (function(){const d=document.getElementById("today-chip");if(d)d.onclick=async()=>{if(!TG_ID)return;setSyncDot("syncing");try{const cloud=await cloudPull();state.leads=mergeStates(state.leads,cloud.leads);if(cloud.settings){if(cloud.settings.templates)state.templates=cloud.settings.templates;if(cloud.settings.settings)state.settings=Object.assign({},DEFAULTS.settings,cloud.settings.settings)}localStorage.setItem(KEY,JSON.stringify(state));setSyncDot("ok");applyTheme();const a=document.querySelector(".screen.active"),tab=a?a.id.replace("screen-",""):"work";show(tab);refresh();toast("Обновлено из облака")}catch(e){setSyncDot("err");toast("Нет связи с облаком")}}})();
 // 1. paint local immediately so app feels instant
-refresh();renderWork();
-if(!state.onboarded&&state.leads.length===0)startOnboarding();
+refresh();show("home");
+if(!state.onboarded)startOnboarding();
 // 2. then reconcile with cloud
 (async function cloudBoot(){
   setSyncDot("syncing");
@@ -858,16 +941,14 @@ if(!state.onboarded&&state.leads.length===0)startOnboarding();
     applyTheme();
     // repaint whatever screen is active
     const active=document.querySelector(".screen.active");
-    const tab=active?active.id.replace("screen-",""):"work";
-    if(tab==="work")renderWork();else if(tab==="funnel")renderFunnel();else if(tab==="later")renderLater();else if(tab==="dash")renderDash();else if(tab==="settings")renderSettings();
+    const tab=active?active.id.replace("screen-",""):"home";
+    if(tab==="home")renderHome();else if(tab==="work")renderWork();else if(tab==="funnel")renderFunnel();else if(tab==="later")renderLater();else if(tab==="dash")renderDash();else if(tab==="settings")renderSettings();
     refresh();
   }catch(e){
     console.warn("cloud boot failed, staying local:",e);
     CLOUD_READY=true; // still allow future pushes to retry
     setSyncDot("err");
   }
-  // only seed demo if truly empty everywhere and never onboarded
-  if(state.leads.length===0){renderWork();if(!state.onboarded)startOnboarding()}
 })();
 
 </script>
