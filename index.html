@@ -303,6 +303,53 @@
   .code-input{width:100%;background:var(--bg2);border:1px solid var(--line2);border-radius:14px;color:var(--txt);padding:13px 15px;font-size:15px;font-weight:800;letter-spacing:1px;font-family:inherit;text-transform:uppercase}
   .code-input:focus{outline:none;border-color:var(--hi)}
 
+  /* goal ring */
+  .goal-card{display:flex;align-items:center;gap:16px;background:var(--glass-card);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--line2);box-shadow:var(--glass-edge),0 10px 30px rgba(0,0,0,.28);border-radius:26px;padding:18px 20px;margin-bottom:12px;cursor:pointer;transition:var(--spring);position:relative;overflow:hidden}
+  .goal-card:active{transform:scale(.98)}
+  .goal-ring{width:96px;height:96px;flex-shrink:0}
+  .gr-num{fill:var(--txt);font-size:34px;font-weight:900}
+  .gr-goal{fill:var(--muted);font-size:15px;font-weight:700}
+  .goal-info{flex:1}
+  .goal-label{font-size:11px;font-weight:800;color:var(--muted2);text-transform:uppercase;letter-spacing:.6px}
+  .goal-val{font-size:22px;font-weight:900;letter-spacing:-.6px;margin:3px 0}
+  .goal-hint{font-size:12px;color:var(--muted);font-weight:600}
+  .goal-edit{width:38px;height:38px;border-radius:50%;border:1px solid var(--line2);background:var(--glass);color:var(--txt);font-size:16px;cursor:pointer;flex-shrink:0;transition:var(--tap)}
+  .goal-edit:active{transform:scale(.9)}
+  /* base / freeze */
+  .freeze-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--glass-card);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--line2);box-shadow:var(--glass-edge);border-radius:20px;padding:16px 18px;margin-bottom:14px;cursor:pointer;transition:var(--spring)}
+  .freeze-bar:active{transform:scale(.98)}
+  .freeze-bar.on{background:rgba(120,140,255,.12);border-color:rgba(120,140,255,.4)}
+  .fb-t{font-size:15px;font-weight:800}
+  .fb-s{font-size:12px;color:var(--muted);font-weight:600;margin-top:2px}
+  .base-stat{display:flex;gap:10px;margin-bottom:14px}
+  .bs-item{flex:1;background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--line2);box-shadow:var(--glass-edge);border-radius:16px;padding:14px;text-align:center}
+  .bs-item b{display:block;font-size:26px;font-weight:900;letter-spacing:-1px}
+  .bs-item b.acc{color:var(--orange)}
+  .bs-item span{font-size:11px;color:var(--muted);font-weight:600}
+  .base-row .av-sm{width:38px;height:38px;border-radius:50%;background:var(--hi);color:var(--bg);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;flex-shrink:0}
+  .base-meta{font-size:11px;color:var(--muted);font-weight:600}
+  .base-meta.ready{color:var(--orange);font-weight:800}
+  /* activity */
+  .act-day{font-size:11px;font-weight:800;color:var(--muted2);text-transform:uppercase;letter-spacing:.8px;margin:18px 4px 10px}
+  .act-row{display:flex;align-items:center;gap:13px;padding:11px 0;border-bottom:1px solid var(--line)}
+  .act-ic{width:42px;height:42px;border-radius:50%;background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border:1px solid var(--line2);box-shadow:var(--glass-edge);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+  .act-body{flex:1}
+  .act-t{font-size:14px;font-weight:700}
+  .act-when{font-size:11.5px;color:var(--muted);font-weight:600;margin-top:2px}
+
+  .sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:90;display:flex;align-items:flex-end;animation:fadeOv .2s ease}
+  @keyframes fadeOv{from{opacity:0}to{opacity:1}}
+  .sheet{width:100%;max-width:480px;margin:0 auto;background:var(--glass-card);backdrop-filter:var(--blur-strong);-webkit-backdrop-filter:var(--blur-strong);border-top:1px solid var(--line2);box-shadow:0 -10px 40px rgba(0,0,0,.4);border-radius:30px 30px 0 0;padding:14px 20px calc(28px + env(safe-area-inset-bottom));animation:sheetUp .4s cubic-bezier(.22,1.1,.36,1)}
+  @keyframes sheetUp{from{transform:translateY(100%)}to{transform:none}}
+  .sheet-grip{width:42px;height:5px;border-radius:99px;background:var(--line2);margin:0 auto 18px}
+  .sheet-title{font-size:18px;font-weight:900;letter-spacing:-.5px;margin-bottom:16px}
+  .sheet-presets{display:flex;gap:8px;margin-bottom:14px}
+  .preset{flex:1;border:1px solid var(--line2);background:var(--glass);color:var(--txt);font-size:16px;font-weight:800;padding:14px 4px;border-radius:14px;cursor:pointer;transition:var(--spring)}
+  .preset:active{transform:scale(.92)}
+  .preset.on{background:var(--hi);color:var(--bg);border-color:var(--hi)}
+  .sheet-custom{display:flex;gap:8px;align-items:stretch}
+  .sheet-custom input{flex:1;background:var(--bg2);border:1px solid var(--line2);border-radius:14px;color:var(--txt);padding:14px 16px;font-size:18px;font-weight:800;font-family:inherit;outline:none}
+
   .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(90px);background:var(--glass-card);backdrop-filter:var(--blur-strong);-webkit-backdrop-filter:var(--blur-strong);border:1px solid var(--line2);color:var(--txt);padding:14px 20px;border-radius:999px;font-size:13.5px;font-weight:700;z-index:60;transition:transform .32s cubic-bezier(.2,.9,.3,1);max-width:92%;box-shadow:var(--shadow);display:flex;align-items:center;gap:14px;backdrop-filter:blur(12px)}
   .toast.show{transform:translateX(-50%) translateY(0)}
   .toast .undo{background:var(--hi);color:var(--bg);border:none;font-weight:900;padding:9px 16px;border-radius:999px;font-size:13px;cursor:pointer;white-space:nowrap}
@@ -345,10 +392,14 @@
     </section>
     <!-- SETTINGS -->
     <section class="screen" id="screen-settings"><div id="settings-body"></div></section>
+    <!-- BASE / ARCHIVE -->
+    <section class="screen" id="screen-base"><div id="base-body"></div></section>
+    <!-- ACTIVITY -->
+    <section class="screen" id="screen-activity"><div id="activity-body"></div></section>
   </main>
 </div>
 <div id="hidden-tabs" style="display:none">
-  <button data-tab="work"></button><button data-tab="funnel"></button><button data-tab="later"></button><button data-tab="dash"></button><button data-tab="load"></button><button data-tab="settings"></button>
+  <button data-tab="work"></button><button data-tab="funnel"></button><button data-tab="later"></button><button data-tab="dash"></button><button data-tab="load"></button><button data-tab="settings"></button><button data-tab="base"></button><button data-tab="activity"></button>
 </div>
 <div class="toast" id="toast"></div>
 <div id="onb-root"></div>
@@ -437,7 +488,7 @@ async function cloudPull(){
 async function cloudPushAll(){
   if(!TG_ID)return;
   if(state.leads.length)await sbUpsert("konva_leads",state.leads.map(leadToRow),"id");
-  await sbUpsert("konva_settings",[{tg_id:TG_ID,data:{templates:state.templates,settings:state.settings,onboarded:state.onboarded},updated_at:Date.now()}],"tg_id");
+  await sbUpsert("konva_settings",[{tg_id:TG_ID,data:{templates:state.templates,settings:state.settings,onboarded:state.onboarded,goals:state.goals,activity:state.activity,frozen:state.frozen},updated_at:Date.now()}],"tg_id");
 }
 function cloudPushDebounced(){
   if(!CLOUD_READY)return;
@@ -457,16 +508,30 @@ function mergeStates(localLeads,cloudLeads){
   }});
   return Object.values(map);
 }
-const DEFAULTS={leads:[],templates:["Привет! Увидел твой профиль 🙌","Здравствуйте! Хочу предложить сотрудничество"],settings:{theme:"dark",haptics:true,stageAnswered:true,stageCall:true,currency:"₽"},onboarded:false};
+const RECYCLE_DAYS=28; // через сколько дней лид "готов к повтору"
+const DEFAULTS={leads:[],templates:["Привет! Увидел твой профиль 🙌","Здравствуйте! Хочу предложить сотрудничество"],settings:{theme:"dark",haptics:true,stageAnswered:true,stageCall:true,currency:"₽"},onboarded:false,goals:{},activity:[],frozen:false};
 let state=loadState();
 function loadState(){let s=null;
   try{s=JSON.parse(localStorage.getItem(KEY))}catch(e){}
   if(!s){try{const o=JSON.parse(localStorage.getItem("konva_v2"));if(o&&o.leads)s={leads:o.leads}}catch(e){}}
   if(!s){try{const o=JSON.parse(localStorage.getItem("leadflow_v1"));if(o&&o.leads)s={leads:o.leads}}catch(e){}}
   s=s||{};
-  return {leads:s.leads||[],templates:s.templates||DEFAULTS.templates.slice(),settings:Object.assign({},DEFAULTS.settings,s.settings||{}),onboarded:!!s.onboarded}}
+  return {leads:s.leads||[],templates:s.templates||DEFAULTS.templates.slice(),settings:Object.assign({},DEFAULTS.settings,s.settings||{}),onboarded:!!s.onboarded,goals:s.goals||{},activity:s.activity||[],frozen:!!s.frozen}}
 function save(){localStorage.setItem(KEY,JSON.stringify(state));cloudPushDebounced()}
 function buzz(type){if(!state.settings.haptics)return;try{const tg=window.Telegram&&window.Telegram.WebApp;if(tg&&tg.HapticFeedback){tg.HapticFeedback.impactOccurred(type||"medium");return}}catch(e){}if(navigator.vibrate)navigator.vibrate(18)}
+/* ===== ACTIVITY LOG ===== */
+function logActivity(type,detail){
+  state.activity=state.activity||[];
+  state.activity.unshift({t:Date.now(),type,detail:detail||""});
+  if(state.activity.length>200)state.activity=state.activity.slice(0,200);
+}
+/* ===== DAILY GOAL ===== */
+function todayKey(){const d=new Date();return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()}
+function getGoal(){state.goals=state.goals||{};return state.goals[todayKey()]||0}
+function setGoal(n){state.goals=state.goals||{};state.goals[todayKey()]=n;
+  // keep only last 60 days of goals
+  const keys=Object.keys(state.goals);if(keys.length>60){const sorted=keys.sort();sorted.slice(0,keys.length-60).forEach(k=>delete state.goals[k])}
+  save()}
 function parseLeads(text){const found=new Set(),out=[];
   text.split(/[\s,;]+/).forEach(tok=>{tok=tok.trim();if(!tok)return;let h=null;
     const u=tok.match(/instagram\.com\/([A-Za-z0-9_.]+)/i);if(u)h=u[1];else if(tok.startsWith("@"))h=tok.slice(1);
@@ -475,6 +540,7 @@ function parseLeads(text){const found=new Set(),out=[];
   return out}
 function addLeads(hs){const ex=new Set(state.leads.map(l=>l.handle));let n=0;
   hs.forEach(h=>{if(!ex.has(h)){state.leads.push({id:Date.now()+"_"+Math.random().toString(36).slice(2,7),handle:h,status:"queue",addedAt:Date.now()});ex.add(h);n++}});
+  if(n>0)logActivity("upload",n+" лидов");
   save();return n}
 const igUrl=h=>"https://instagram.com/"+h;
 const queue=()=>state.leads.filter(l=>l.status==="queue").sort((a,b)=>a.addedAt-b.addedAt);
@@ -547,7 +613,7 @@ function fly(card,x,y){card.style.transform=`translate(${x}px,${y}px) rotate(${x
 function doAct(id,act){const l=state.leads.find(x=>x.id===id);if(!l)return;
   const prev={status:l.status,wroteAt:l.wroteAt,badAt:l.badAt,nostoryAt:l.nostoryAt,addedAt:l.addedAt,call:l.call,deal:l.deal,answered:l.answered};
   const undo=()=>{Object.assign(l,prev);save();renderWork();refresh()};
-  if(act==="wrote"){l.status="wrote";l.wroteAt=Date.now();l.call=null;l.deal=null;l.answered=null;save();renderWork();refresh();toast("Написал → в воронку",undo)}
+  if(act==="wrote"){l.status="wrote";l.wroteAt=Date.now();l.call=null;l.deal=null;l.answered=null;logActivity("wrote","@"+l.handle);save();renderWork();refresh();toast("Написал → в воронку",undo)}
   else if(act==="bad"){l.status="bad";l.badAt=Date.now();save();renderWork();refresh();toast("Не подходит",undo)}
   else if(act==="nostory"){l.status="nostory";l.nostoryAt=Date.now();save();renderWork();refresh();toast("Нет сторис · вернётся через 24ч",undo)}
   else if(act==="skip"){const mx=Math.max(...state.leads.map(x=>x.addedAt));l.addedAt=mx+1;save();renderWork();toast("В конец очереди")}}
@@ -570,11 +636,15 @@ function renderFunnel(){const body=document.getElementById("funnel-body"),S=stat
     let extra="";
     if(won)extra+=`<div class="amount-box"><label>💰 Сумма</label><input type="number" inputmode="numeric" data-amt="${l.id}" value="${l.amount||""}" placeholder="0"><span class="cur">${cur()}</span></div>`;
     if(dealGate)extra+=`<div class="note-box"><textarea class="note-input" data-note="${l.id}" placeholder="Заметка — напр. созвон в пятницу 12:00 мск">${l.note||""}</textarea>${l.note?`<div class="note-saved">📌 сохранено</div>`:""}</div>`;
-    return `<div class="fcard"><div class="top"><div class="h" style="flex:1;font-weight:800;font-size:15px">@${l.handle}</div>${pills}<a class="ig" href="${igUrl(l.handle)}" target="_blank" rel="noopener">↗</a></div>${stages}${extra}</div>`}).join("");
+    return `<div class="fcard"><div class="top"><div class="h" style="flex:1;font-weight:800;font-size:15px">@${l.handle}</div>${pills}<a class="ig" href="${igUrl(l.handle)}" target="_blank" rel="noopener">↗</a></div>${stages}${extra}</div>`}).join("")
+    +`<button class="btn btn-sec" id="funnel-img" style="margin-top:14px">📸 Картинка воронки</button>`;
+  const fi=document.getElementById("funnel-img");if(fi)fi.onclick=makeFunnelImage;
   body.querySelectorAll("[data-set]").forEach(b=>b.onclick=()=>{
     const l=state.leads.find(x=>x.id===b.dataset.id),[f,v]=b.dataset.set.split(":");
     if(l[f]===v){l[f]=null;if(f==="answered"){l.call=null;l.deal=null}if(f==="call")l.deal=null}
-    else{l[f]=v;if(f==="answered"&&v==="no"){l.call=null;l.deal=null}if(f==="call"&&v==="no")l.deal=null}
+    else{l[f]=v;if(f==="answered"&&v==="no"){l.call=null;l.deal=null}if(f==="call"&&v==="no")l.deal=null;
+      if(f==="deal"&&v==="won")logActivity("won","@"+l.handle);
+      if(f==="call"&&v==="yes")logActivity("call","@"+l.handle);}
     save();renderFunnel();refresh()});
   body.querySelectorAll("[data-amt]").forEach(inp=>{let dt;inp.oninput=()=>{clearTimeout(dt);dt=setTimeout(()=>{const l=state.leads.find(x=>x.id===inp.dataset.amt);l.amount=inp.value?+inp.value:null;save();refresh()},500)}});
   body.querySelectorAll("[data-note]").forEach(t=>{let dt;t.oninput=()=>{clearTimeout(dt);dt=setTimeout(()=>{const l=state.leads.find(x=>x.id===t.dataset.note);l.note=t.value;save()},500)}})}
@@ -807,6 +877,7 @@ function renderSettings(){const S=state.settings,body=document.getElementById("s
     ps.textContent="Отправляю…";ps.disabled=true;
     try{const r=await partnerPush(code,hs);
       document.getElementById("partner-leads").value="";
+      if(r.added){logActivity("partner",r.added+" лидов → "+code);save()}
       toast(r.added?`Отправлено ${r.added}`+(r.dupes?` · дублей ${r.dupes}`:""):"Все уже в базе партнера");buzz("medium");
     }catch(e){toast(e.message==="own_code"?"Это твой собственный код — введи код партнёра":e.message==="bad_code"?"Неверный код":"Ошибка отправки - проверь связь")}
     ps.textContent="Отправить лиды партнеру";ps.disabled=false;
@@ -836,7 +907,7 @@ function applyTheme(){document.documentElement.setAttribute("data-theme",state.s
 function refresh(){const tn=document.getElementById("today-num");if(tn)tn.textContent=todayWrote();
   const homeActive=document.getElementById("screen-home").classList.contains("active");
   if(homeActive)renderHome();}
-const TITLES={work:"Отписка",funnel:"Воронка",later:"Нет сторис",dash:"Отчёты",load:"Загрузить базу",settings:"Настройки"};
+const TITLES={work:"Отписка",funnel:"Воронка",later:"Нет сторис",dash:"Отчёты",load:"Загрузить базу",settings:"Настройки",base:"База",activity:"Активность"};
 function show(tab){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   const scr=document.getElementById("screen-"+tab);if(scr)scr.classList.add("active");
@@ -850,23 +921,49 @@ function show(tab){
   document.body.scrollTop=0;window.scrollTo(0,0);
   if(isHome)renderHome();
   if(tab==="work"){batchSession.start=0;renderWork()}
-  if(tab==="funnel")renderFunnel();if(tab==="later")renderLater();if(tab==="dash")renderDash();if(tab==="settings")renderSettings()}
+  if(tab==="funnel")renderFunnel();if(tab==="later")renderLater();if(tab==="dash")renderDash();if(tab==="settings")renderSettings();if(tab==="base")renderBase();if(tab==="activity")renderActivity()}
 document.getElementById("back-btn").onclick=()=>{buzz("light");show("home")};
 document.querySelectorAll("#hidden-tabs button").forEach(b=>b.onclick=()=>show(b.dataset.tab));
 
 /* ===== HOME HUB ===== */
+function goalRing(done,goal){
+  const pct=goal>0?Math.min(1,done/goal):0;
+  const R=52,C=2*Math.PI*R,off=C*(1-pct);
+  const reached=goal>0&&done>=goal;
+  return `<svg viewBox="0 0 130 130" class="goal-ring">
+    <circle cx="65" cy="65" r="${R}" fill="none" stroke="var(--card3)" stroke-width="11"/>
+    <circle cx="65" cy="65" r="${R}" fill="none" stroke="${reached?'var(--orange)':'var(--hi)'}" stroke-width="11" stroke-linecap="round"
+      stroke-dasharray="${C}" stroke-dashoffset="${off}" transform="rotate(-90 65 65)" style="transition:stroke-dashoffset .6s cubic-bezier(.3,.9,.3,1)"/>
+    <text x="65" y="60" text-anchor="middle" class="gr-num">${done}</text>
+    <text x="65" y="82" text-anchor="middle" class="gr-goal">${goal>0?"из "+goal:"цель?"}</text>
+  </svg>`;
+}
 function renderHome(){
   const body=document.getElementById("home-body"),q=queue().length;
   const wrote=todayWrote();
+  const goal=getGoal();
   const funnelN=state.leads.filter(l=>l.status==="wrote").length;
   const ready=state.leads.filter(l=>l.status==="nostory"&&(l.nostoryAt+DAY_MS)<=Date.now()).length;
   const nostoryN=state.leads.filter(l=>l.status==="nostory").length;
+  const archiveN=state.leads.filter(l=>l.status==="bad"||l.status==="wrote").length;
+  const recycleN=recycleReady().length;
   const hour=new Date().getHours();
   const greet=hour<6?"Доброй ночи":hour<12?"Доброе утро":hour<18?"Добрый день":"Добрый вечер";
+  const reached=goal>0&&wrote>=goal;
+  const act=(state.activity||[]).slice(0,3);
   body.innerHTML=`
     <div class="home-hero">
       <div class="hh-greet">${greet} 👋</div>
-      <div class="hh-stat"><b>${wrote}</b> отписано сегодня</div>
+      <div class="hh-stat">${state.frozen?"База заморожена ❄️":(reached?"Цель дня закрыта 🔥":"<b>"+wrote+"</b> отписано сегодня")}</div>
+    </div>
+    <div class="goal-card" id="goal-card">
+      ${goalRing(wrote,goal)}
+      <div class="goal-info">
+        <div class="goal-label">Цель на сегодня</div>
+        <div class="goal-val">${goal>0?goal+" отписок":"не задана"}</div>
+        <div class="goal-hint">${goal>0?(reached?"Красавчик, цель достигнута":"осталось "+Math.max(0,goal-wrote)):"тапни чтобы поставить"}</div>
+      </div>
+      <button class="goal-edit" id="goal-edit">✎</button>
     </div>
     <button class="tile tile-primary" data-go="work">
       <div class="tile-top"><span class="tile-ic">⚡</span>${q?`<span class="tile-badge">${q} в очереди</span>`:""}</div>
@@ -874,31 +971,168 @@ function renderHome(){
       <div class="tile-sub">${q?"Свайпай лидов по одному":"Очередь пуста — загрузи базу"}</div>
     </button>
     <div class="tile-row">
-      <button class="tile" data-go="load">
-        <span class="tile-ic">＋</span>
-        <div class="tile-title sm">Загрузить</div>
-        <div class="tile-sub">в базу</div>
-      </button>
-      <button class="tile" data-go="dash">
-        <span class="tile-ic">📊</span>
-        <div class="tile-title sm">Отчёты</div>
-        <div class="tile-sub">аналитика</div>
-      </button>
+      <button class="tile" data-go="load"><span class="tile-ic">＋</span><div class="tile-title sm">Загрузить</div><div class="tile-sub">в базу</div></button>
+      <button class="tile" data-go="dash"><span class="tile-ic">📊</span><div class="tile-title sm">Отчёты</div><div class="tile-sub">аналитика</div></button>
     </div>
     <div class="tile-row">
-      <button class="tile" data-go="funnel">
-        <span class="tile-ic">📞</span>
-        <div class="tile-title sm">Воронка</div>
-        <div class="tile-sub">${funnelN} в работе</div>
-      </button>
-      <button class="tile" data-go="later">
-        <span class="tile-ic">🕓</span>${ready?`<span class="tile-dot">${ready}</span>`:""}
-        <div class="tile-title sm">Нет сторис</div>
-        <div class="tile-sub">${nostoryN?nostoryN+" ждут":"пусто"}</div>
-      </button>
+      <button class="tile" data-go="funnel"><span class="tile-ic">📞</span><div class="tile-title sm">Воронка</div><div class="tile-sub">${funnelN} в работе</div></button>
+      <button class="tile" data-go="later"><span class="tile-ic">🕓</span>${ready?`<span class="tile-dot">${ready}</span>`:""}<div class="tile-title sm">Нет сторис</div><div class="tile-sub">${nostoryN?nostoryN+" ждут":"пусто"}</div></button>
+    </div>
+    <div class="tile-row">
+      <button class="tile" data-go="base"><span class="tile-ic">🗂️</span>${recycleN?`<span class="tile-dot">${recycleN}</span>`:""}<div class="tile-title sm">База</div><div class="tile-sub">${archiveN} обработано${recycleN?" · "+recycleN+" к повтору":""}</div></button>
+      <button class="tile" data-go="activity"><span class="tile-ic">📋</span><div class="tile-title sm">Активность</div><div class="tile-sub">${act.length?"лента событий":"пока пусто"}</div></button>
     </div>
     <button class="home-settings" data-go="settings">⚙️ Настройки и команда</button>`;
   body.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{buzz("light");show(b.dataset.go)});
+  const ge=document.getElementById("goal-edit"),gc=document.getElementById("goal-card");
+  const editGoal=()=>{buzz("light");openGoalPicker()};
+  if(ge)ge.onclick=e=>{e.stopPropagation();editGoal()};
+  if(gc)gc.onclick=editGoal;
+}
+function openGoalPicker(){
+  const cur=getGoal()||30;
+  const presets=[10,20,30,50,100];
+  const root=document.getElementById("onb-root");
+  root.innerHTML=`<div class="sheet-overlay" id="goal-overlay">
+    <div class="sheet">
+      <div class="sheet-grip"></div>
+      <div class="sheet-title">Цель отписок на сегодня</div>
+      <div class="sheet-presets">${presets.map(p=>`<button class="preset ${p===cur?'on':''}" data-g="${p}">${p}</button>`).join("")}</div>
+      <div class="sheet-custom"><input type="number" inputmode="numeric" id="goal-input" value="${cur}" placeholder="своё число"><button class="btn btn-primary" id="goal-ok" style="margin:0;width:auto;padding:15px 26px">ОК</button></div>
+      <button class="btn btn-sec" id="goal-clear" style="margin-top:10px">Убрать цель</button>
+    </div></div>`;
+  const close=()=>{root.innerHTML=""};
+  document.getElementById("goal-overlay").onclick=e=>{if(e.target.id==="goal-overlay")close()};
+  root.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{document.getElementById("goal-input").value=b.dataset.g;root.querySelectorAll(".preset").forEach(x=>x.classList.toggle("on",x===b))});
+  document.getElementById("goal-ok").onclick=()=>{const n=Math.max(0,parseInt(document.getElementById("goal-input").value)||0);setGoal(n);buzz("medium");close();renderHome()};
+  document.getElementById("goal-clear").onclick=()=>{setGoal(0);close();renderHome()};
+}
+/* leads ready for re-outreach: written >= RECYCLE_DAYS ago, not currently in queue */
+function recycleReady(){const cut=Date.now()-RECYCLE_DAYS*DAY_MS;
+  return state.leads.filter(l=>(l.status==="wrote"&&l.wroteAt&&l.wroteAt<=cut)||(l.status==="bad"&&l.badAt&&l.badAt<=cut))}
+
+/* ===== BASE / ARCHIVE (re-outreach cycle) ===== */
+let baseFilter="all";
+function lastTouch(l){return l.wroteAt||l.badAt||l.nostoryAt||l.addedAt||0}
+function renderBase(){
+  const body=document.getElementById("base-body");
+  const processed=state.leads.filter(l=>l.status==="wrote"||l.status==="bad");
+  const ready=recycleReady();
+  let arr;
+  if(baseFilter==="ready")arr=ready;
+  else if(baseFilter==="wrote")arr=processed.filter(l=>l.status==="wrote");
+  else if(baseFilter==="bad")arr=processed.filter(l=>l.status==="bad");
+  else arr=processed;
+  arr=arr.slice().sort((a,b)=>lastTouch(b)-lastTouch(a));
+  let html=`
+    <div class="freeze-bar ${state.frozen?'on':''}" id="freeze-bar">
+      <div><div class="fb-t">${state.frozen?"❄️ База заморожена":"База активна"}</div><div class="fb-s">${state.frozen?"отдыхает между циклами":"идёт работа по лидам"}</div></div>
+      <div class="sw ${state.frozen?'on':''}"><i></i></div>
+    </div>
+    <div class="base-stat">
+      <div class="bs-item"><b>${processed.length}</b><span>обработано</span></div>
+      <div class="bs-item"><b class="acc">${ready.length}</b><span>к повтору</span></div>
+      <div class="bs-item"><b>${state.leads.filter(l=>l.status==="queue").length}</b><span>в очереди</span></div>
+    </div>
+    <div class="seg" id="base-seg">
+      <button data-bf="all" class="${baseFilter==='all'?'active':''}">Все</button>
+      <button data-bf="ready" class="${baseFilter==='ready'?'active':''}">К повтору</button>
+      <button data-bf="wrote" class="${baseFilter==='wrote'?'active':''}">Писал</button>
+      <button data-bf="bad" class="${baseFilter==='bad'?'active':''}">Не подошли</button>
+    </div>`;
+  if(ready.length&&(baseFilter==="all"||baseFilter==="ready")){
+    html+=`<button class="btn btn-primary" id="recycle-all" style="margin-bottom:14px">↻ Вернуть в отписку всех «к повтору» (${ready.length})</button>`;
+  }
+  if(!arr.length){html+=`<div class="empty"><div class="big">🗂️</div><p>${baseFilter==="ready"?"Пока некого повторять. Лиды появятся здесь через "+RECYCLE_DAYS+" дней после касания.":"Здесь копятся обработанные лиды для повторных заходов."}</p></div>`;}
+  else{
+    html+=arr.map(l=>{
+      const days=Math.floor((Date.now()-lastTouch(l))/DAY_MS);
+      const isReady=ready.includes(l);
+      const stTxt=l.status==="wrote"?(l.deal==="won"?"оплата":"писал"):"не подошёл";
+      return `<div class="row base-row">
+        <div class="av-sm">${l.handle.charAt(0).toUpperCase()}</div>
+        <div class="h">@${l.handle}<br><span class="base-meta ${isReady?'ready':''}">${stTxt} · ${days===0?"сегодня":days+"д назад"}${isReady?" · готов ✓":""}</span></div>
+        <a class="ig" href="${igUrl(l.handle)}" target="_blank" rel="noopener">↗</a>
+        <button class="mini ${isReady?'on-won':''}" data-recycle="${l.id}">↻</button>
+      </div>`;
+    }).join("");
+  }
+  html+=`<button class="btn btn-sec" id="base-export" style="margin-top:16px">⬇️ Выгрузить ссылки (CSV)</button>`;
+  body.innerHTML=html;
+  document.querySelectorAll("#base-seg button").forEach(b=>b.onclick=()=>{baseFilter=b.dataset.bf;renderBase()});
+  const fb=document.getElementById("freeze-bar");if(fb)fb.onclick=()=>{state.frozen=!state.frozen;logActivity(state.frozen?"freeze":"unfreeze","");save();buzz("medium");renderBase()};
+  const ra=document.getElementById("recycle-all");if(ra)ra.onclick=()=>{
+    const list=recycleReady();if(!list.length)return;
+    if(!confirm("Вернуть "+list.length+" лидов в очередь отписки?"))return;
+    list.forEach(l=>{l.status="queue";l.addedAt=Date.now();l.call=null;l.deal=null;l.answered=null;l.note=null});
+    logActivity("recycle",list.length+" лидов");save();buzz("medium");toast("Вернул "+list.length+" в отписку");renderBase()};
+  body.querySelectorAll("[data-recycle]").forEach(b=>b.onclick=()=>{
+    const l=state.leads.find(x=>x.id===b.dataset.recycle);l.status="queue";l.addedAt=Date.now();l.call=null;l.deal=null;l.answered=null;
+    save();buzz("light");toast("@"+l.handle+" → в отписку");renderBase()});
+  const ex=document.getElementById("base-export");if(ex)ex.onclick=()=>{
+    const list=arr.length?arr:processed;
+    const head="handle,profile_url,status,last_touch\n";
+    const rows=list.map(l=>[l.handle,igUrl(l.handle),l.status,new Date(lastTouch(l)).toLocaleDateString("ru-RU")].join(","));
+    const blob=new Blob([head+rows.join("\n")],{type:"text/csv"}),a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);a.download="konva_base_"+new Date().toISOString().slice(0,10)+".csv";a.click();toast("Ссылки выгружены")};
+}
+
+/* ===== ACTIVITY FEED ===== */
+function renderActivity(){
+  const body=document.getElementById("activity-body");
+  const act=state.activity||[];
+  if(!act.length){body.innerHTML=`<div class="empty"><div class="big">📋</div><p>Здесь будет лента: загрузки, отписки, созвоны, оплаты — кто и когда.</p></div>`;return}
+  const icons={upload:"＋",wrote:"✅",call:"📞",won:"💰",recycle:"↻",freeze:"❄️",unfreeze:"☀️",partner:"📤"};
+  const labels={upload:"Загружено",wrote:"Написал",call:"Созвон",won:"Оплата",recycle:"Возврат в отписку",freeze:"База заморожена",unfreeze:"База разморожена",partner:"Отправлено партнёру"};
+  function when(t){const d=Date.now()-t,m=Math.floor(d/6e4),h=Math.floor(d/36e5),dd=Math.floor(d/864e5);
+    if(m<1)return"только что";if(m<60)return m+" мин назад";if(h<24)return h+"ч назад";if(dd<7)return dd+"д назад";return new Date(t).toLocaleDateString("ru-RU",{day:"numeric",month:"short"})}
+  // group by day
+  let html="",lastDay="";
+  act.forEach(a=>{
+    const day=new Date(a.t).toLocaleDateString("ru-RU",{day:"numeric",month:"long"});
+    if(day!==lastDay){html+=`<div class="act-day">${day}</div>`;lastDay=day}
+    html+=`<div class="act-row"><div class="act-ic">${icons[a.type]||"•"}</div><div class="act-body"><div class="act-t">${labels[a.type]||a.type}${a.detail?" · "+a.detail:""}</div><div class="act-when">${when(a.t)}</div></div></div>`;
+  });
+  html+=`<button class="danger" id="act-clear" style="margin-top:20px">Очистить ленту</button>`;
+  body.innerHTML=html;
+  const cl=document.getElementById("act-clear");if(cl)cl.onclick=()=>{if(confirm("Очистить ленту активности?")){state.activity=[];save();renderActivity()}};
+}
+
+/* ===== FUNNEL IMAGE EXPORT ===== */
+function makeFunnelImage(){
+  const L=state.leads,S=state.settings;
+  const wrote=L.filter(l=>l.wroteAt).length;
+  const answered=L.filter(l=>l.answered==="yes").length;
+  const calls=L.filter(l=>l.call==="yes").length;
+  const won=L.filter(l=>l.deal==="won").length;
+  const light=S.theme==="light";
+  const DPR=2,W=1080,H=1350,c=document.createElement("canvas");c.width=W*DPR;c.height=H*DPR;const x=c.getContext("2d");x.scale(DPR,DPR);
+  x.fillStyle=light?"#e7e7ec":"#0c0c0e";x.fillRect(0,0,W,H);
+  function rb(cx,cy,r,col){const g=x.createRadialGradient(cx,cy,0,cx,cy,r);g.addColorStop(0,col);g.addColorStop(1,"rgba(0,0,0,0)");x.fillStyle=g;x.beginPath();x.arc(cx,cy,r,0,7);x.fill()}
+  rb(200,250,460,"rgba(255,122,61,.30)");rb(880,1100,460,"rgba(120,140,255,.20)");
+  const txt=light?"#0e0e12":"#f5f5f7",mut=light?"#6b6b73":"#9a9aa2",orange="#ff7a3d",hi=light?"#0e0e12":"#fff";
+  const PAD=80;x.textBaseline="alphabetic";
+  x.fillStyle=txt;x.font="900 60px Montserrat";x.fillText("Konva",PAD,130);x.fillStyle=orange;x.fillText(".",PAD+x.measureText("Konva").width,130);
+  x.fillStyle=mut;x.font="700 30px Montserrat";x.fillText("МОЯ ВОРОНКА",PAD,180);
+  function rr(rx,ry,rw,rh,rad){x.beginPath();x.moveTo(rx+rad,ry);x.arcTo(rx+rw,ry,rx+rw,ry+rh,rad);x.arcTo(rx+rw,ry+rh,rx,ry+rh,rad);x.arcTo(rx,ry+rh,rx,ry,rad);x.arcTo(rx,ry,rx+rw,ry,rad);x.closePath()}
+  const steps=[["Написал",wrote,hi],["Ответили",answered,hi]];
+  if(S.stageCall)steps.push(["Созвон",calls,orange]);
+  steps.push(["Оплата",won,orange]);
+  const cardW=W-PAD*2,max=Math.max(1,wrote);let y=260;
+  steps.forEach((s,i)=>{
+    const w=Math.max(140,Math.round(cardW*s[1]/max));
+    const pct=wrote?Math.round(s[1]/wrote*100):0;
+    x.fillStyle=mut;x.font="700 30px Montserrat";x.textAlign="left";x.fillText(s[0],PAD,y-14);
+    x.textAlign="right";x.fillText(pct+"%",W-PAD,y-14);x.textAlign="left";
+    // track bg with hatch
+    x.fillStyle=light?"rgba(0,0,0,.05)":"rgba(255,255,255,.05)";rr(PAD,y,cardW,110,26);x.fill();
+    // bar
+    x.fillStyle=s[2];rr(PAD,y,w,110,26);x.fill();
+    x.fillStyle=(s[2]===orange)?"#fff":(light?"#fff":"#0c0c0e");x.font="900 56px Montserrat";x.fillText(String(s[1]),PAD+30,y+72);
+    y+=160;
+  });
+  x.fillStyle=orange;x.font="800 28px Montserrat";x.textAlign="center";x.fillText("Konva — CRM для холодного аутрича",W/2,H-50);x.textAlign="left";
+  c.toBlob(b=>{shareImage(b,"konva_funnel_"+new Date().toISOString().slice(0,10)+".png","Моя воронка в Konva\nНаписал: "+wrote+" · Ответили: "+answered+" · Созвоны: "+calls+" · Оплаты: "+won)},"image/png");
 }
 const li=document.getElementById("load-input");
 li.addEventListener("input",()=>{const p=parseLeads(li.value);document.getElementById("load-preview").innerHTML=p.length?`Распознано <b>${p.length}</b>: ${p.slice(0,6).map(h=>"@"+h).join(", ")}${p.length>6?" …":""}`:`Вставь ссылки или @юзернеймы.`});
@@ -932,6 +1166,9 @@ if(!state.onboarded)startOnboarding();
       if(cloud.settings.templates)state.templates=cloud.settings.templates;
       if(cloud.settings.settings)state.settings=Object.assign({},DEFAULTS.settings,cloud.settings.settings);
       if(typeof cloud.settings.onboarded==="boolean")state.onboarded=cloud.settings.onboarded;
+      if(cloud.settings.goals)state.goals=Object.assign({},cloud.settings.goals,state.goals);
+      if(cloud.settings.activity&&cloud.settings.activity.length>=(state.activity||[]).length)state.activity=cloud.settings.activity;
+      if(typeof cloud.settings.frozen==="boolean")state.frozen=cloud.settings.frozen;
     }
     localStorage.setItem(KEY,JSON.stringify(state));
     CLOUD_READY=true;
